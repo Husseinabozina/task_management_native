@@ -1,0 +1,22 @@
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+xcuserdata/
+DerivedData/
+build/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# SwiftPM
+.build/
+Package.resolved
+.swiftpm/
+
+# macOS
+.DS_Store
+*.swp
+*~
+
+# أدوات
+netlify.toml
