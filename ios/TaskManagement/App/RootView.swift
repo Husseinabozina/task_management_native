@@ -35,37 +35,42 @@ struct RootTabs: View {
   @State private var editorSeed: TaskEditorSeed?
 
   var body: some View {
-    ZStack(alignment: .bottom) {
-      Group {
-        switch selection {
-        case .home:
-          HomeView(repository: repository) {
-            selection = .tasks
-          }
-        case .tasks:
-          TasksScreen(repository: repository)
-            .navigationTitle("مهامي")
-            .navigationBarTitleDisplayMode(.inline)
-        case .projects:
-          NavigationStack {
-            ProjectsScreen(repository: repository)
+    GeometryReader { geo in
+      // قياس منطقة مؤشر الهوم قبل التمديد، وتمريرها للشريط ليمتد تحتها.
+      let bottomInset = geo.safeAreaInsets.bottom
+      ZStack(alignment: .bottom) {
+        Group {
+          switch selection {
+          case .home:
+            HomeView(repository: repository) {
+              selection = .tasks
+            }
+          case .tasks:
+            TasksScreen(repository: repository)
+              .navigationTitle("مهامي")
+              .navigationBarTitleDisplayMode(.inline)
+          case .projects:
+            NavigationStack {
+              ProjectsScreen(repository: repository)
+            }
           }
         }
+        BottomBar(selection: $selection, bottomInset: bottomInset) {
+          editorSeed = .new(dueDay: nil)
+        }
       }
-      BottomBar(selection: $selection) {
-        editorSeed = .new(dueDay: nil)
+      .ignoresSafeArea(.container, edges: .bottom)
+      .ignoresSafeArea(.keyboard, edges: .bottom)
+      .sheet(item: $editorSeed) { seed in
+        TaskEditorSheet(seed: seed, repository: repository)
       }
-    }
-    .ignoresSafeArea(.keyboard, edges: .bottom)
-    .sheet(item: $editorSeed) { seed in
-      TaskEditorSheet(seed: seed, repository: repository)
-    }
-    .onAppear {
-      // مداخل تشخيصية للأدوات فقط: فتح تاب مباشر عند الإقلاع.
-      if ProcessInfo.processInfo.arguments.contains("-tmStartTasks") {
-        selection = .tasks
-      } else if ProcessInfo.processInfo.arguments.contains("-tmStartProjects") {
-        selection = .projects
+      .onAppear {
+        // مداخل تشخيصية للأدوات فقط: فتح تاب مباشر عند الإقلاع.
+        if ProcessInfo.processInfo.arguments.contains("-tmStartTasks") {
+          selection = .tasks
+        } else if ProcessInfo.processInfo.arguments.contains("-tmStartProjects") {
+          selection = .projects
+        }
       }
     }
   }

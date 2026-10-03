@@ -31,29 +31,40 @@ struct NotchedBarShape: Shape {
 }
 
 /// الشريط السفلي — شكل فيجما الحرفي: notch حول FAB دائري 44 بظل بنفسجي.
-/// تابات حقيقية فقط (قرار D10/D17): الرئيسية + مهامي + المشاريع.
+/// تابات حقيقية فقط (قرار D17): الرئيسية + مهامي + المشاريع.
+/// bottomInset = ارتفاع منطقة مؤشر الهوم (يُقاس من الأب) — اللايندر يمتد تحته لآخر الشاشة.
 struct BottomBar: View {
   @Binding var selection: AppTab
   let onFab: () -> Void
+  var bottomInset: CGFloat = 0
 
   var body: some View {
-    ZStack(alignment: .top) {
+    ZStack(alignment: .bottom) {
+      // امتداد مستطيل بسيط تحت منطقة مؤشر الهوم.
+      Color.appLavender
+        .frame(height: bottomInset)
+        .frame(maxWidth: .infinity)
+
       NotchedBarShape()
         .fill(Color.appLavender)
         .frame(height: 56)
         .frame(maxWidth: .infinity)
+        .padding(.bottom, bottomInset)
 
-      HStack {
+      // أيقونات التابات على إيقاع الفيجما الحرفي — مراكز LTR الأصلية (44/111/265 على 375).
+      // في البيئة العربية (RTL) يعكس SwiftUI محور X تلقائيًا في .position فينتاج الترتيب المرآتي الصحيح:
+      // home خارجية يمين + تقويم داخلية يمين + شنطة داخلية شمال، والخانة الخارجية الشمال فاضية (D17).
+      GeometryReader { geo in
+        let w = geo.size.width
         tabButton(.home, icon: "icon_home_bold")
-        Spacer()
+          .position(x: w * 44 / 375, y: 28)
         tabButton(.tasks, icon: "icon_calendar_bold")
-        Color.clear.frame(width: 64)
-        Spacer()
+          .position(x: w * 111 / 375, y: 28)
         tabButton(.projects, icon: "icon_briefcase")
+          .position(x: w * 265 / 375, y: 28)
       }
-      .padding(.horizontal, 44)
       .frame(height: 56)
-      .frame(maxWidth: .infinity)
+      .padding(.bottom, bottomInset)
 
       Button(action: onFab) {
         Image("icon_add")
@@ -65,10 +76,11 @@ struct BottomBar: View {
           .background(Circle().fill(Color.appPrimary))
           .shadow(color: Color.appPrimary.opacity(0.49), radius: 9, x: 2, y: 10)
       }
-      .offset(y: -22)
+      // مركز الـ FAB على الحافة العلوية لشكل الـ notch (فوق امتداد المؤشر).
+      .offset(y: -(bottomInset + 34))
       .accessibilityLabel("إضافة مهمة جديدة")
     }
-    .frame(height: 78)
+    .frame(height: 78 + bottomInset, alignment: .bottom)
     .animation(.easeOut(duration: 0.15), value: selection)
   }
 
