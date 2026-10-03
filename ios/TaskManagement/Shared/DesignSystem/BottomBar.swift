@@ -2,6 +2,7 @@ import SwiftUI
 
 enum AppTab: Hashable {
   case home
+  case calendar
   case tasks
   case projects
 }
@@ -31,7 +32,7 @@ struct NotchedBarShape: Shape {
 }
 
 /// الشريط السفلي — شكل فيجما الحرفي: notch حول FAB دائري 44 بظل بنفسجي.
-/// تابات حقيقية فقط (قرار D17): الرئيسية + مهامي + المشاريع.
+/// 4 تابات حقيقية (قرار D18): الرئيسية + التقويم + مهامي + المشاريع — بنفس مواقع الفيجما.
 /// bottomInset = ارتفاع منطقة مؤشر الهوم (يُقاس من الأب) — اللايندر يمتد تحته لآخر الشاشة.
 struct BottomBar: View {
   @Binding var selection: AppTab
@@ -51,17 +52,19 @@ struct BottomBar: View {
         .frame(maxWidth: .infinity)
         .padding(.bottom, bottomInset)
 
-      // أيقونات التابات على إيقاع الفيجما الحرفي — مراكز LTR الأصلية (44/111/265 على 375).
+      // أيقونات التابات على إيقاع الفيجما الحرفي — مراكز LTR الأصلية (44/111/265/331 على 375).
       // في البيئة العربية (RTL) يعكس SwiftUI محور X تلقائيًا في .position فينتاج الترتيب المرآتي الصحيح:
-      // home خارجية يمين + تقويم داخلية يمين + شنطة داخلية شمال، والخانة الخارجية الشمال فاضية (D17).
+      // home خارجية يمين + تقويم داخلية يمين + [FAB] + مهامي (مستند) داخلية شمال + مشاريع خارجية شمال.
       GeometryReader { geo in
         let w = geo.size.width
-        tabButton(.home, icon: "icon_home_bold")
+        tabButton(.home, icon: "icon_home_bulk", activeIcon: "icon_home_bold")
           .position(x: w * 44 / 375, y: 28)
-        tabButton(.tasks, icon: "icon_calendar_bold")
+        tabButton(.calendar, icon: "icon_calendar_bulk", activeIcon: "icon_calendar_bold")
           .position(x: w * 111 / 375, y: 28)
-        tabButton(.projects, icon: "icon_briefcase")
+        tabButton(.tasks, icon: "icon_document")
           .position(x: w * 265 / 375, y: 28)
+        tabButton(.projects, icon: "icon_briefcase")
+          .position(x: w * 331 / 375, y: 28)
       }
       .frame(height: 56)
       .padding(.bottom, bottomInset)
@@ -84,22 +87,24 @@ struct BottomBar: View {
     .animation(.easeOut(duration: 0.15), value: selection)
   }
 
-  private func tabButton(_ tab: AppTab, icon: String) -> some View {
-    Button {
+  private func tabButton(_ tab: AppTab, icon: String, activeIcon: String? = nil) -> some View {
+    let isActive = selection == tab
+    return Button {
       selection = tab
     } label: {
-      Image(icon)
+      Image(isActive ? (activeIcon ?? icon) : icon)
         .resizable()
         .renderingMode(.template)
-        .foregroundStyle(selection == tab ? Color.appPrimary : Color.appTextSecondary)
+        .foregroundStyle(isActive ? Color.appPrimary : Color.appTextSecondary)
         .frame(width: 24, height: 24)
         .shadow(
-          color: selection == tab ? Color.appPrimary.opacity(0.35) : .clear,
+          color: isActive ? Color.appPrimary.opacity(0.35) : .clear,
           radius: 3, x: 0, y: 3
         )
     }
     .accessibilityLabel(
-      tab == .home ? "الرئيسية" : (tab == .tasks ? "مهامي" : "المشاريع")
+      tab == .home
+        ? "الرئيسية" : (tab == .tasks ? "مهامي" : (tab == .calendar ? "التقويم" : "المشاريع"))
     )
   }
 }

@@ -26,7 +26,7 @@ struct RootView: View {
 }
 
 /// التابات + FAB — هيكل التنقل الرئيسي بعد شاشة البداية.
-/// تابات حقيقية فقط (قرار D17): الرئيسية + مهامي؛ المشاريع ستُضاف عند توفر شاشتها.
+/// 4 تابات حقيقية (قرار D18): الرئيسية + التقويم + مهامي + المشاريع.
 @MainActor
 struct RootTabs: View {
   let repository: LocalDataRepository
@@ -44,6 +44,12 @@ struct RootTabs: View {
           case .home:
             HomeView(repository: repository) {
               selection = .tasks
+            }
+          case .calendar:
+            NavigationStack {
+              CalendarScreen(repository: repository)
+                .navigationTitle("التقويم")
+                .navigationBarTitleDisplayMode(.inline)
             }
           case .tasks:
             TasksScreen(repository: repository)
@@ -68,6 +74,8 @@ struct RootTabs: View {
         // مداخل تشخيصية للأدوات فقط: فتح تاب مباشر عند الإقلاع.
         if ProcessInfo.processInfo.arguments.contains("-tmStartTasks") {
           selection = .tasks
+        } else if ProcessInfo.processInfo.arguments.contains("-tmStartCalendar") {
+          selection = .calendar
         } else if ProcessInfo.processInfo.arguments.contains("-tmStartProjects") {
           selection = .projects
         }

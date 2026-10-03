@@ -10,11 +10,15 @@ struct TasksScreen: View {
 
   private let repository: LocalDataRepository
 
-  /// فلتر مشروع ثابت عند الفتح من شاشة المشاريع.
-  init(repository: LocalDataRepository, projectId: UUID? = nil) {
+  /// فلتر ثابت عند الفتح من المشاريع (projectId) أو من التقويم (initialDay).
+  init(repository: LocalDataRepository, projectId: UUID? = nil, initialDay: CalendarDay? = nil) {
     self.repository = repository
-    _viewModel = State(
-      initialValue: TasksViewModel(repository: repository, query: TaskQuery(projectId: projectId)))
+    let query = TaskQuery(
+      day: initialDay.map { TaskQuery.DayFilter.day($0) } ?? .all,
+      status: .any,
+      projectId: projectId
+    )
+    _viewModel = State(initialValue: TasksViewModel(repository: repository, query: query))
   }
 
   var body: some View {
