@@ -56,12 +56,33 @@ final class PersistedProject {
   var emoji: String?
   var colorKey: String?
   var createdAt: Date
+  var updatedAt: Date = Date()
 
-  init(id: UUID, name: String, emoji: String?, colorKey: String?, createdAt: Date) {
+  init(
+    id: UUID, name: String, emoji: String?, colorKey: String?, createdAt: Date,
+    updatedAt: Date? = nil
+  ) {
     self.id = id
     self.name = name
     self.emoji = emoji
     self.colorKey = colorKey
     self.createdAt = createdAt
+    self.updatedAt = updatedAt ?? createdAt
+  }
+}
+
+/// آثار الحذف المحلية — تُدفع للسحابة بعد نجاح المزامنة ثم تُمسح (خطة C1).
+@Model
+final class PersistedTombstone {
+  var key: String
+  var kind: String
+  var rowId: UUID
+  var deletedAt: Date
+
+  init(kind: String, rowId: UUID, deletedAt: Date) {
+    self.key = "\(kind):\(rowId.uuidString)"
+    self.kind = kind
+    self.rowId = rowId
+    self.deletedAt = deletedAt
   }
 }

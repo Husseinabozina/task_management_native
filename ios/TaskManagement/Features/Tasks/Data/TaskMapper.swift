@@ -37,7 +37,8 @@ enum TaskMapper {
       name: row.name,
       emoji: row.emoji,
       colorKey: row.colorKey,
-      createdAt: row.createdAt
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt
     )
   }
 }

@@ -249,7 +249,8 @@ struct TaskEditorSheet: View {
     let hour = calendar.component(.hour, from: reminderDate)
     let minute = calendar.component(.minute, from: reminderDate)
     let second = calendar.component(.second, from: reminderDate)
-    if let aligned = calendar.date(bySettingHour: hour, minute: minute, second: second, of: dueDate) {
+    if let aligned = calendar.date(bySettingHour: hour, minute: minute, second: second, of: dueDate)
+    {
       reminderDate = aligned
     }
   }

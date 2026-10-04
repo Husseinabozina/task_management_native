@@ -93,6 +93,8 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
 
   func deleteTask(id: UUID) throws {
     let row = try fetchTaskRow(id: id)
+    container.mainContext.insert(
+      PersistedTombstone(kind: "task", rowId: id, deletedAt: Date()))
     container.mainContext.delete(row)
     try save()
     notifyChanged()
@@ -123,6 +125,7 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
       colorKey: input.colorKey,
       createdAt: Date()
     )
+    row.updatedAt = Date()
     container.mainContext.insert(row)
     try save()
     let item = TaskMapper.toDomain(row)
@@ -141,6 +144,7 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
     row.name = trimmed
     row.emoji = emoji
     row.colorKey = colorKey
+    row.updatedAt = Date()
     try save()
     let item = TaskMapper.toDomain(row)
     notifyChanged()
@@ -155,6 +159,8 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
       task.projectId = nil
       task.updatedAt = Date()
     }
+    container.mainContext.insert(
+      PersistedTombstone(kind: "project", rowId: id, deletedAt: Date()))
     container.mainContext.delete(row)
     try save()
     notifyChanged()
@@ -202,6 +208,106 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
     let descriptor = FetchDescriptor<PersistedProject>(sortBy: [SortDescriptor(\.createdAt)])
     let rows = (try? container.mainContext.fetch(descriptor)) ?? []
     return rows.map(TaskMapper.toDomain)
+  }
+
+  // MARK: - مزامنة السحابة (C1 — full snapshot LWW بخطوة tombstones)
+
+  /// كل الصفوف المحلية + آثار الحذف غير المدفوعة بعد.
+  func exportForSync() -> (
+    tasks: [TaskItem], projects: [ProjectItem],
+    taskTombstones: [UUID], projectTombstones: [UUID]
+  ) {
+    let tasksDescriptor = FetchDescriptor<PersistedTask>()
+    let tasks = ((try? container.mainContext.fetch(tasksDescriptor)) ?? []).map(TaskMapper.toDomain)
+    let projectsDescriptor = FetchDescriptor<PersistedProject>()
+    let projects = ((try? container.mainContext.fetch(projectsDescriptor)) ?? []).map(
+      TaskMapper.toDomain)
+    let tombstoneDescriptor = FetchDescriptor<PersistedTombstone>()
+    let tombstones = (try? container.mainContext.fetch(tombstoneDescriptor)) ?? []
+    return (
+      tasks: tasks,
+      projects: projects,
+      taskTombstones: tombstones.filter { $0.kind == "task" }.map(\.rowId),
+      projectTombstones: tombstones.filter { $0.kind == "project" }.map(\.rowId)
+    )
+  }
+
+  func clearTombstones(taskIds: [UUID], projectIds: [UUID]) {
+    let taskKeys = Set(taskIds.map { "task:\($0.uuidString)" })
+    let projectKeys = Set(projectIds.map { "project:\($0.uuidString)" })
+    let descriptor = FetchDescriptor<PersistedTombstone>()
+    guard let rows = try? container.mainContext.fetch(descriptor) else { return }
+    for row in rows where taskKeys.contains(row.key) || projectKeys.contains(row.key) {
+      container.mainContext.delete(row)
+    }
+    try? save()
+  }
+
+  /// تطبيق صفوف السحابة محليًا بقاعدة LWW: الأحدث updated_at يفوز، والجديد يُضاف.
+  func applyCloudUpserts(projects: [ProjectItem], tasks: [TaskItem]) {
+    for incoming in projects {
+      let targetId = incoming.id
+      let descriptor = FetchDescriptor<PersistedProject>(
+        predicate: #Predicate { $0.id == targetId })
+      if let row = try? container.mainContext.fetch(descriptor).first {
+        guard incoming.updatedAt > row.updatedAt else { continue }
+        row.name = incoming.name
+        row.emoji = incoming.emoji
+        row.colorKey = incoming.colorKey
+        row.createdAt = incoming.createdAt
+      } else {
+        container.mainContext.insert(
+          PersistedProject(
+            id: incoming.id, name: incoming.name, emoji: incoming.emoji,
+            colorKey: incoming.colorKey, createdAt: incoming.createdAt))
+      }
+    }
+    for incoming in tasks {
+      let targetId = incoming.id
+      let descriptor = FetchDescriptor<PersistedTask>(
+        predicate: #Predicate { $0.id == targetId })
+      if let row = try? container.mainContext.fetch(descriptor).first {
+        guard incoming.updatedAt > row.updatedAt else { continue }
+        row.title = incoming.title
+        row.details = incoming.details
+        row.statusRaw = incoming.status.rawValue
+        row.priorityRaw = incoming.priority.rawValue
+        row.isPinned = incoming.isPinned
+        row.reminderDate = incoming.reminderDate
+        row.dueDayDate = incoming.dueDay?.date
+        row.projectId = incoming.projectId
+        row.createdAt = incoming.createdAt
+        row.completedAt = incoming.completedAt
+      } else {
+        container.mainContext.insert(
+          PersistedTask(
+            id: incoming.id, title: incoming.title, details: incoming.details,
+            statusRaw: incoming.status.rawValue, priorityRaw: incoming.priority.rawValue,
+            isPinned: incoming.isPinned, dueDayDate: incoming.dueDay?.date,
+            projectId: incoming.projectId, createdAt: incoming.createdAt,
+            updatedAt: incoming.updatedAt, completedAt: incoming.completedAt,
+            reminderDate: incoming.reminderDate))
+      }
+    }
+    try? save()
+  }
+
+  /// حذف محلي لصفوف اتحذفوا من السحابة (tombstone من جهة تانية).
+  func applyCloudDeletes(taskIds: [UUID], projectIds: [UUID]) {
+    for id in projectIds {
+      let descriptor = FetchDescriptor<PersistedProject>(predicate: #Predicate { $0.id == id })
+      if let rows = try? container.mainContext.fetch(descriptor) {
+        for row in rows { container.mainContext.delete(row) }
+      }
+    }
+    for id in taskIds {
+      let descriptor = FetchDescriptor<PersistedTask>(predicate: #Predicate { $0.id == id })
+      if let rows = try? container.mainContext.fetch(descriptor) {
+        for row in rows { container.mainContext.delete(row) }
+      }
+    }
+    try? save()
+    notifyChanged()
   }
 
   // MARK: - أدوات داخلية

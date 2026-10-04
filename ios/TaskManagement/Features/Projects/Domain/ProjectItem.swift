@@ -8,6 +8,7 @@ struct ProjectItem: Identifiable, Hashable {
   /// مفتاح من لوحة الألوان الثابتة — لا قيمة لونية خام هنا.
   var colorKey: String?
   let createdAt: Date
+  var updatedAt: Date
 }
 
 struct NewProject: Hashable {

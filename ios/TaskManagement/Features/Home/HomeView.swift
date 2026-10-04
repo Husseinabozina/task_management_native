@@ -12,6 +12,8 @@ struct HomeView: View {
   @State private var detailItem: TaskItem?
   @State private var editorSeed: TaskEditorSeed?
   @State private var actionMessage: String?
+  @Environment(\.cloudBundle) private var cloudBundle
+  @State private var showAccount = false
 
   var body: some View {
     ScrollView {
@@ -53,6 +55,9 @@ struct HomeView: View {
     .sheet(item: $editorSeed) { seed in
       TaskEditorSheet(seed: seed, repository: repository)
     }
+    .sheet(isPresented: $showAccount) {
+      AccountSheet(bundle: cloudBundle, repository: repository)
+    }
   }
 
   // MARK: - الرأس + الجرس
@@ -68,6 +73,18 @@ struct HomeView: View {
           .foregroundStyle(Color.appTextPrimary)
       }
       Spacer()
+      // السحابة: يظهر فقط لو SupabaseConfig.plist مضبوط (لا أزرار ميتة).
+      if cloudBundle != nil {
+        Button {
+          showAccount = true
+        } label: {
+          Image(systemName: "icloud")
+            .font(.system(size: 20, weight: .medium))
+            .foregroundStyle(Color.appPrimary)
+            .frame(width: 34, height: 34)
+        }
+        .accessibilityLabel("الحساب والمزامنة")
+      }
       // مؤشر حالة المتأخرات — مؤشر معلوماتي لا زر (لا توجد شاشة إشعارات في V1).
       bell
         .accessibilityLabel(

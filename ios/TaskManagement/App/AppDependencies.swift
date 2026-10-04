@@ -1,4 +1,5 @@
 import Foundation
+import Supabase
 import SwiftData
 
 /// نقطة تركيب الاعتماديات — مكان واحد صريح عند بدء التطبيق (العقد المعماري).
@@ -8,6 +9,7 @@ enum AppDependencies {
     let container: ModelContainer
     let repository: LocalDataRepository
     let reminderSync: ReminderSync
+    let cloud: CloudBundle?
   }
 
   static func bootstrap() -> Result<Bootstrap, RepositoryError> {
@@ -18,8 +20,19 @@ enum AppDependencies {
       let repository = LocalDataRepository(container: container)
       let reminderSync = ReminderSync()
       reminderSync.start(repository: repository)
+
+      var cloud: CloudBundle?
+      if let values = SupabaseConfig.load() {
+        let client = SupabaseClient(supabaseURL: values.url, supabaseKey: values.anonKey)
+        cloud = CloudBundle(
+          auth: AuthSession(client: client),
+          sync: CloudSyncService(client: client, repository: repository))
+      }
+
       return .success(
-        Bootstrap(container: container, repository: repository, reminderSync: reminderSync))
+        Bootstrap(
+          container: container, repository: repository,
+          reminderSync: reminderSync, cloud: cloud))
     } catch {
       return .failure(.storeFailure(error.localizedDescription))
     }

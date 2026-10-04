@@ -20,6 +20,7 @@ struct TaskManagementApp: App {
         RootView()
           .environment(session)
           .environment(\.appRepository, dependencies.repository)
+          .environment(\.cloudBundle, dependencies.cloud)
           .modelContainer(dependencies.container)
       case .failure(let error):
         BootFailureView(message: error.readableDescription)
