@@ -32,6 +32,7 @@
 		86C5DAEEF0DD8C1DEA181B09 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213E832FE4D339F0373AE576 /* HomeView.swift */; };
 		8773B8C7C626D7BBCDC6A219 /* TaskManagementApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03CDD525CDD4848D07A88725 /* TaskManagementApp.swift */; };
 		88F2C29C65820681D9CA0EE5 /* BottomBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3DDE2B24FC90FFF06E9FAAF /* BottomBar.swift */; };
+		9613DD0CB2EA237E4DABF713 /* SupabaseConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = E885FF0C5BC93BDE78BAD1A4 /* SupabaseConfig.plist */; };
 		9FACE511AB17826CB56E86F6 /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABE5649C3A8288006E1AFE4 /* PrimaryButton.swift */; };
 		A7A66C90283FA1D31F9861AF /* PersistedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A054FC6E2BC57032A8811A25 /* PersistedModels.swift */; };
 		ACF04E13DCC15A79C132ADFE /* TaskMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E03A3EBACF40C7D36E9BDDE /* TaskMapper.swift */; };
@@ -96,6 +97,7 @@
 		DA6FE621BA6149069ACAA8DC /* RepositoryEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryEnvironment.swift; sourceTree = "<group>"; };
 		DF2C198822F78AD63B069F9C /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		E4E29034818216CB3D7C2C54 /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
+		E885FF0C5BC93BDE78BAD1A4 /* SupabaseConfig.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = SupabaseConfig.plist; sourceTree = "<group>"; };
 		F08E83747C269B09FC9C8A36 /* Cairo-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Cairo-SemiBold.ttf"; sourceTree = "<group>"; };
 		F3DDE2B24FC90FFF06E9FAAF /* BottomBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomBar.swift; sourceTree = "<group>"; };
 		FA53DA30A605EE60BB7EFDDD /* TasksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewModel.swift; sourceTree = "<group>"; };
@@ -271,6 +273,7 @@
 			children = (
 				90AD6A619F318459F46FAB2F /* Assets.xcassets */,
 				B0CF7A43A65EA4B467FF4397 /* SupabaseConfig.example.plist */,
+				E885FF0C5BC93BDE78BAD1A4 /* SupabaseConfig.plist */,
 				5A050B39610B74AEB0288FEA /* Fonts */,
 			);
 			path = Resources;
@@ -434,6 +437,7 @@
 				D0DD612023C6D681426F7D37 /* LexendDeca-Regular.ttf in Resources */,
 				6BEC391762EC2F5E98527D8F /* LexendDeca-SemiBold.ttf in Resources */,
 				37430A59CF84957EBCC3AF87 /* SupabaseConfig.example.plist in Resources */,
+				9613DD0CB2EA237E4DABF713 /* SupabaseConfig.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,7 +1,7 @@
 -- ============================================================
 -- TaskManagement — C1 Schema (Supabase / Postgres)
 -- المصدر: docs/architecture/CLOUD_PLAN.md (قرار D23)
--- نفّذ الملف كاملًا في SQL Editor مرة واحدة.
+-- نفّذ الملف كاملًا على مشروع جديد مرة واحدة؛ لا يعيد إنشاء triggers موجودة.
 -- C3 سيضيف workspaces/الصلاحيات لاحقًا — الآن مزامنة شخصية بـ owner_id.
 -- ============================================================
 
@@ -54,13 +54,11 @@ begin
   new.revision = coalesce(old.revision, 0) + 1;
   return new;
 end;
-$$ language plpgsql;
+$$ language plpgsql set search_path = '';
 
-drop trigger if exists tasks_bump on public.tasks;
 create trigger tasks_bump before update on public.tasks
   for each row execute function public.bump_revision();
 
-drop trigger if exists projects_bump on public.projects;
 create trigger projects_bump before update on public.projects
   for each row execute function public.bump_revision();
 
@@ -71,9 +69,8 @@ begin
   values (new.id, coalesce(new.raw_user_meta_data->>'name', split_part(new.email, '@', 1)));
   return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = '';
 
-drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_user();
 
@@ -90,3 +87,13 @@ create policy "projects own all" on public.projects
 
 create policy "tasks own all" on public.tasks
   for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+
+-- 7) إتاحة الجداول للمستخدم المسجّل مع استمرار RLS owner-only.
+revoke all privileges on public.profiles, public.projects, public.tasks from anon;
+revoke truncate, references, trigger on public.profiles, public.projects, public.tasks from authenticated;
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.profiles, public.projects, public.tasks to authenticated;
+
+-- دوال triggers داخلية، ليست عمليات API قابلة للاستدعاء من العميل.
+revoke execute on function public.bump_revision() from public, anon, authenticated;
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
