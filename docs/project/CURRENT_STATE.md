@@ -1,13 +1,12 @@
-Current phase: فجوة V1 (بحث + فلتر أولوية) انفذت واتبنت — جاهز للتجربة مع كل العناصر المتراكمة (7/8/9 + السحابة C1 + إعداد Codex)
+Current phase: مسار أندرويد بدأ — A0 مكتمل (هيكل Compose يبني APK بنجاح) — iOS: كل الكود مكتمل والتحقق runtime مستحق من المستخدم
 Project path: /Volumes/Hussein/DevStorage/Projects/task_management_native (الهارد الخارجي — symlink في الـ workspace)
-Branch / HEAD: main — commit: search + priority filter
-Approved scope: V1 كاملة الآن فعليًا (كل بنود FEATURE_SCOPE «معتمد في V1» منفذة — أول مرة)
-Locked decisions: D1–D24 + CLOUD_PLAN (Supabase مشروع قائم: nqrqvmvucfdtfmoaiqgp — سكيما وRLS وtriggers متحققة من قاعدة البيانات، شغل Codex محفوظ b4ad5ac)
-Completed behaviors (منطقيًا): بحث فوري بالعنوان case-insensitive في شاشة مهامي (حقل داخل الشاشة تحت الفلاتر) + فلتر أولوية (Menu chip: الكل/مستعجلة/عادية/هادية) + حالة no results تحترم البحث والفلاتر كلها معًا — مع البناء الحالي: التطبيق عنده كل بنود نطاق V1 المعلن
-Implemented but runtime-unverified: البحث والفلتر الجديدان + كل المتراكم (7/8/9 + السحابة) — الأولوية القصوى لتجربة المستخدم الشاملة الآن
-Verification actually performed: build ناجح معزول، parse نظيف، مقارنة FEATURE_SCOPE بند بند (بوابة R-GEN-009) أكدت إن ده آخر بند ناقص في نطاق V1
-Known issues: السيميوليتر كان معلقًا سابقة — لو عاد فاقفله وشغله من fresh
-Deferred features: BACKLOG محدث
-Native / visual review: user-owned — قائمة تجربة شاملة أُرسلت في الرسالة
-Extras shipped: ملف قبول رسمي (ACCEPTANCE_CHECKLIST.md — أ/ب/ج/د/هـ/و/ز) + خطة C2 (C2_PLAN.md — Apple Sign-In, outbox, مؤشرات، backoff — بانتظار قبول C1) + زر «إعادة جولة الترحيب» في شاشة الحساب (وعد Checkpoint 7)
-Exact next checkpoint: 10 — تجربة المستخدم وفق ACCEPTANCE_CHECKLIST.md بندًا بندًا ← إغلاق V1 رسمي ← اعتماد C2_PLAN ثم تنفيذه
+Branch / HEAD: main — commit: Android A0
+Approved scope: V1 iOS (0-9) + C1 Supabase (كود) + أندرويد A0 (D25)
+Locked decisions: D1–D25 (جديد D25: بدء أندرويد موازيًا بقرار المستخدم — iOS runtime يظل دينًا متتبعًا في ACCEPTANCE_CHECKLIST)
+Completed behaviors (أندرويد): settings/root/app gradle (AGP 8.13 + Kotlin 2.2 + Compose BOM، minSdk 26) + Manifest عربي RTL + Theme بتوكنز الهوية (فاتح/غامق) + MainActivity حالة انتقالية صادقة — APK debug اتبنى (21m أول بناء، GRADLE_USER_HOME على الخارجي)
+Implemented but runtime-unverified: تشغيل الـ APK على emulator/جهاز (المستخدم) — وجميع بنود iOS السابقة
+Verification actually performed: ./gradlew assembleDebug ناجح (37 tasks)؛ wrapper من etzan_flutter؛ local.properties (gitignored) يشير لـ SDK الخارجي
+Known issues: JDK 24 + Gradle 8.14.3 اشتغلوا بنجاح (ملاحظة بيئية)؛ أول بناء نزّل 1.2GB في DevStorage/Gradle/user-home (خارجي عمدًا)
+Deferred features: BACKLOG (أندرويد: A1 عقود الدومين بالـ Kotlin ثم Room — وفق نفس تسلسل iOS)
+Native / visual review: user-owned — APK جاهز للتثبيت: android/app/build/outputs/apk/debug/app-debug.apk
+Exact next checkpoint: A1 — عقود الدومين بالـ Kotlin (TaskItem/TaskQuery/CalendarDay) + Room مخزنًا محليًا وفق نفس العقد
