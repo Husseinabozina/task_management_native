@@ -7,6 +7,7 @@ struct TasksScreen: View {
   @State private var quickTitle = ""
   @State private var quickError: String?
   @State private var editorSeed: TaskEditorSeed?
+  @State private var detailItem: TaskItem?
 
   private let repository: LocalDataRepository
 
@@ -36,6 +37,18 @@ struct TasksScreen: View {
       for await items in repository.observeProjects() {
         projects = items
       }
+    }
+    .sheet(item: $detailItem) { item in
+      TaskDetailSheet(
+        item: item,
+        project: projects.first { $0.id == item.projectId },
+        repository: repository,
+        onEdit: { edited in
+          detailItem = nil
+          editorSeed = .edit(edited)
+        },
+        onDeleted: { detailItem = nil }
+      )
     }
     .sheet(item: $editorSeed) { seed in
       TaskEditorSheet(seed: seed, repository: repository)
@@ -68,7 +81,7 @@ struct TasksScreen: View {
             TaskRowView(
               item: item,
               project: item.projectId.flatMap { id in projects.first { $0.id == id } },
-              onOpen: { editorSeed = .edit(item) },
+              onOpen: { detailItem = item },
               onToggleCompletion: {
                 Task {
                   if let message = await viewModel.toggleCompletion(of: item) {

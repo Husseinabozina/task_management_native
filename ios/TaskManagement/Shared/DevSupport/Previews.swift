@@ -54,7 +54,7 @@ import SwiftUI
         )
         _ = try? repository.setCompleted(id: first.id, true)
       }
-      return HomeView(repository: repository, onOpenTasks: {})
+      return HomeView(repository: repository, onOpenTasks: {}, onOpenProject: { _ in })
     }
 
     /// شاشة مهامي فيها مهام متنوعة (مكتملة/مفتوحة/بموعد/بدون).
@@ -110,7 +110,7 @@ import SwiftUI
   }
 
   #Preview("الرئيسية — فاضية") {
-    HomeView(repository: PreviewSupport.inMemoryRepository(), onOpenTasks: {})
+    HomeView(repository: PreviewSupport.inMemoryRepository(), onOpenTasks: {}, onOpenProject: { _ in })
   }
 
   #Preview("الرئيسية — فيها مهام") {

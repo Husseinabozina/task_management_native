@@ -15,6 +15,7 @@
 		2228C9659670FE8072250536 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003071B9B4A865D4AA889511 /* Theme.swift */; };
 		277EB09F38462C581CC41A15 /* Metrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3F88D02A9DB69FF2A9656E /* Metrics.swift */; };
 		293D708B03F304ACD34846AE /* ProjectsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C1D4B59897F742BF69DC50 /* ProjectsScreen.swift */; };
+		2C8DD5276A97888F4BE6B652 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2C198822F78AD63B069F9C /* HomeViewModel.swift */; };
 		32890765E3F63FD2E1A18337 /* CalendarScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDE75E4EC40512F7CBCEC00 /* CalendarScreen.swift */; };
 		3A520277A15AA9D130AD6433 /* ProjectsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DAC33E7FAFF10F9012F2B06 /* ProjectsViewModel.swift */; };
 		3BD0FF46C0253E2F20F0D2FF /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D195AA10FD59C3E18CCFB9 /* AppDependencies.swift */; };
@@ -41,6 +42,7 @@
 		D268E9AF461ECC32F0C67C88 /* EntryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA65A45B4FC9A3FD0402C73E /* EntryScreen.swift */; };
 		D3EA6D87F0B126E1EB5B11ED /* ProjectItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7460A00E61C0F5522BBCE54 /* ProjectItem.swift */; };
 		D878116F4188C21BD4B1F12C /* AppSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 144FCD0D0C5AAD9D4A996CAC /* AppSession.swift */; };
+		DFA3C305B03A059D82AE5872 /* TaskDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA294E8021452A1BFCC595B /* TaskDetailSheet.swift */; };
 		F384514BE1B94B0242B6DEA8 /* CalendarDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EB1AC10487E124F7C5296F1 /* CalendarDay.swift */; };
 		FE30FF7EB9D12880F04C309C /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72EE22979F6B5C4AAFC0F61C /* CalendarViewModel.swift */; };
 /* End PBXBuildFile section */
@@ -58,6 +60,7 @@
 		2A4CE9A6098BDDAEFDA75D01 /* LexendDeca-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LexendDeca-Regular.ttf"; sourceTree = "<group>"; };
 		33ADD37CA53702047C56167D /* TasksScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksScreen.swift; sourceTree = "<group>"; };
 		364FD688EDEFA3634A93DAE1 /* LocalDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDataRepository.swift; sourceTree = "<group>"; };
+		3AA294E8021452A1BFCC595B /* TaskDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailSheet.swift; sourceTree = "<group>"; };
 		3C6364ABA26C0CCEB207DFCD /* TaskManagement.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TaskManagement.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		44CA1E29AFACDD2EA16AB865 /* Previews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Previews.swift; sourceTree = "<group>"; };
 		4ABE5649C3A8288006E1AFE4 /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
@@ -79,6 +82,7 @@
 		C37CBC109B4D5AF33F0D5873 /* TaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowView.swift; sourceTree = "<group>"; };
 		DA65A45B4FC9A3FD0402C73E /* EntryScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryScreen.swift; sourceTree = "<group>"; };
 		DA6FE621BA6149069ACAA8DC /* RepositoryEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryEnvironment.swift; sourceTree = "<group>"; };
+		DF2C198822F78AD63B069F9C /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		F08E83747C269B09FC9C8A36 /* Cairo-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Cairo-SemiBold.ttf"; sourceTree = "<group>"; };
 		F3DDE2B24FC90FFF06E9FAAF /* BottomBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomBar.swift; sourceTree = "<group>"; };
 		FA53DA30A605EE60BB7EFDDD /* TasksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewModel.swift; sourceTree = "<group>"; };
@@ -128,6 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				213E832FE4D339F0373AE576 /* HomeView.swift */,
+				DF2C198822F78AD63B069F9C /* HomeViewModel.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -295,6 +300,7 @@
 		DF515B231F52F59D29E27D58 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
+				3AA294E8021452A1BFCC595B /* TaskDetailSheet.swift */,
 				25EEB22F83A10DDE58BA7D63 /* TaskEditorSheet.swift */,
 				C37CBC109B4D5AF33F0D5873 /* TaskRowView.swift */,
 				33ADD37CA53702047C56167D /* TasksScreen.swift */,
@@ -394,6 +400,7 @@
 				FE30FF7EB9D12880F04C309C /* CalendarViewModel.swift in Sources */,
 				D268E9AF461ECC32F0C67C88 /* EntryScreen.swift in Sources */,
 				86C5DAEEF0DD8C1DEA181B09 /* HomeView.swift in Sources */,
+				2C8DD5276A97888F4BE6B652 /* HomeViewModel.swift in Sources */,
 				48555EF1522D16ABB2B392AE /* LocalDataRepository.swift in Sources */,
 				277EB09F38462C581CC41A15 /* Metrics.swift in Sources */,
 				A7A66C90283FA1D31F9861AF /* PersistedModels.swift in Sources */,
@@ -407,6 +414,7 @@
 				BC8A600E5600511499F705BD /* RepositoryEnvironment.swift in Sources */,
 				0F101ADDCDD41AEE84B1AE5C /* RepositoryError.swift in Sources */,
 				00BBA3B86D5C17C97756848F /* RootView.swift in Sources */,
+				DFA3C305B03A059D82AE5872 /* TaskDetailSheet.swift in Sources */,
 				C16F69CBDC82BBEE98B12710 /* TaskEditorSheet.swift in Sources */,
 				499924D5E737A81DDF41F8B6 /* TaskItem.swift in Sources */,
 				8773B8C7C626D7BBCDC6A219 /* TaskManagementApp.swift in Sources */,

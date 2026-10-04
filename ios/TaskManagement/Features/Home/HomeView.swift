@@ -1,57 +1,36 @@
-import Observation
 import SwiftUI
+import Observation
 
-/// حالة الرئيسية — تراقب مهام اليوم لحساب تقدم الكارت الرئيسي بيانات حقيقية.
-@Observable
-@MainActor
-final class HomeViewModel {
-  private(set) var todayTasks: [TaskItem] = []
-
-  private let repository: TaskRepository
-  private var observationTask: Task<Void, Never>?
-
-  init(repository: TaskRepository) {
-    self.repository = repository
-    observationTask = Task { [weak self] in
-      let query = TaskQuery(day: .day(CalendarDay.today()), status: .any)
-      for await items in repository.observeTasks(query) {
-        guard let self, !Task.isCancelled else { break }
-        self.todayTasks = items
-      }
-    }
-  }
-
-  var completedToday: Int {
-    todayTasks.filter { $0.status == .completed }.count
-  }
-
-  var totalToday: Int {
-    todayTasks.count
-  }
-
-  var progress: Double {
-    guard totalToday > 0 else { return 0 }
-    return Double(completedToday) / Double(totalToday)
-  }
-}
-
-/// الرئيسية — رأس الترحيب + الكارت الرئيسي (تقدم اليوم الحقيقي) + مدخل شاشة مهامي.
-/// مقطع المشاريع يُضاف في checkpoint المشاريع (لا عناصر وهمية).
+/// الرئيسية — رأس الترحيب + جرس المتأخرات + الكارت الرئيسي + الكارتين البارزين
+/// + «مهام النهارده» + «مشاريعك» — كلها ببيانات حقيقية، والأقسام الفاضية تختفي (SCREEN_PLAN §1).
 struct HomeView: View {
   let repository: LocalDataRepository
   let onOpenTasks: () -> Void
+  let onOpenProject: (ProjectItem) -> Void
 
   @State private var viewModel: HomeViewModel?
+  @State private var detailItem: TaskItem?
+  @State private var editorSeed: TaskEditorSeed?
+  @State private var actionMessage: String?
 
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 20) {
         header
         heroCard
+        if !featured.isEmpty {
+          featuredSection
+        }
+        if !activeToday.isEmpty {
+          todaySection
+        }
+        if !projects.isEmpty {
+          projectsSection
+        }
       }
       .padding(.horizontal, Metrics.screenPadding)
       .padding(.top, 8)
-      .padding(.bottom, 110)
+      .padding(.bottom, 120)
     }
     .background(Color.appBackground)
     .task {
@@ -59,18 +38,63 @@ struct HomeView: View {
         viewModel = HomeViewModel(repository: repository)
       }
     }
-  }
-
-  private var header: some View {
-    VStack(alignment: .leading, spacing: 2) {
-      Text("أهلًا 👋")
-        .font(AppTypography.bodyText)
-        .foregroundStyle(Color.appTextSecondary)
-      Text(Self.todayLabel())
-        .font(AppTypography.screenTitle)
-        .foregroundStyle(Color.appTextPrimary)
+    .sheet(item: $detailItem) { item in
+      TaskDetailSheet(
+        item: item,
+        project: viewModel?.project(for: item.projectId),
+        repository: repository,
+        onEdit: { edited in
+          detailItem = nil
+          editorSeed = .edit(edited)
+        },
+        onDeleted: { detailItem = nil }
+      )
+    }
+    .sheet(item: $editorSeed) { seed in
+      TaskEditorSheet(seed: seed, repository: repository)
     }
   }
+
+  // MARK: - الرأس + الجرس
+
+  private var header: some View {
+    HStack(alignment: .center) {
+      VStack(alignment: .leading, spacing: 2) {
+        Text("أهلًا 👋")
+          .font(AppTypography.bodyText)
+          .foregroundStyle(Color.appTextSecondary)
+        Text(Self.todayLabel())
+          .font(AppTypography.screenTitle)
+          .foregroundStyle(Color.appTextPrimary)
+      }
+      Spacer()
+      // مؤشر حالة المتأخرات — مؤشر معلوماتي لا زر (لا توجد شاشة إشعارات في V1).
+      bell
+        .accessibilityLabel(
+          (viewModel?.overdueCount ?? 0) > 0
+            ? "عندك \(viewModel?.overdueCount ?? 0) مهام متأخرة"
+            : "مفيش مهام متأخرة"
+        )
+    }
+  }
+
+  private var bell: some View {
+    let overdue = viewModel?.overdueCount ?? 0
+    return Image("icon_notification")
+      .resizable()
+      .frame(width: 24, height: 24)
+      .foregroundStyle(Color.appTextPrimary)
+      .overlay(alignment: .topTrailing) {
+        if overdue > 0 {
+          Circle()
+            .fill(Color.appPrimary)
+            .frame(width: 8, height: 8)
+            .offset(x: 3, y: -2)
+        }
+      }
+  }
+
+  // MARK: - الكارت الرئيسي
 
   private var heroCard: some View {
     let total = viewModel?.totalToday ?? 0
@@ -126,11 +150,115 @@ struct HomeView: View {
       Text("\(Int((progress * 100).rounded()))%")
         .font(AppTypography.numeral)
         .foregroundStyle(Color.white)
-        // النسبة رقم لاتيني — يثبت اتجاهه LTR حتى لا ينقلب داخل RTL.
         .environment(\.layoutDirection, .leftToRight)
     }
     .frame(width: 76, height: 76)
     .accessibilityLabel("تقدم مهام النهارده \(Int((progress * 100).rounded())) بالمئة")
+  }
+
+  // MARK: - الكارتان البارزتان (أهم مشروعين نشاطًا)
+
+  private var featured: [ProjectItem] {
+    viewModel?.featuredProjects ?? []
+  }
+
+  private var featuredSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack(spacing: 8) {
+        Text("أهم المشاريع شغالة")
+          .font(AppTypography.sectionTitle)
+          .foregroundStyle(Color.appTextPrimary)
+        countBadge(featured.count)
+        Spacer()
+      }
+      HStack(spacing: 16) {
+        ForEach(featured) { project in
+          FeaturedProjectCard(
+            project: project,
+            activeCount: viewModel?.activeCount(projectId: project.id) ?? 0,
+            progress: viewModel?.progress(projectId: project.id) ?? 0,
+            onTap: { onOpenProject(project) }
+          )
+        }
+      }
+    }
+  }
+
+  // MARK: - مهام النهارده (أول 3 + الكل)
+
+  private var activeToday: [TaskItem] {
+    Array((viewModel?.activeTodayTasks ?? []).prefix(3))
+  }
+
+  private var todaySection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack(spacing: 8) {
+        Text("مهام النهارده")
+          .font(AppTypography.sectionTitle)
+          .foregroundStyle(Color.appTextPrimary)
+        Spacer()
+        Button(action: onOpenTasks) {
+          Text("الكل")
+            .font(AppTypography.chipSelected)
+            .foregroundStyle(Color.appPrimary)
+        }
+        .buttonStyle(.plain)
+      }
+      LazyVStack(spacing: 12) {
+        ForEach(activeToday) { item in
+          TaskRowView(
+            item: item,
+            project: viewModel?.project(for: item.projectId),
+            onOpen: { detailItem = item },
+            onToggleCompletion: {
+              Task {
+                if let message = await viewModel?.toggleCompletion(of: item) {
+                  actionMessage = message
+                }
+              }
+            }
+          )
+        }
+      }
+    }
+  }
+
+  // MARK: - مقطع مشاريعك (صفوف Task Group من الفيجما)
+
+  private var projects: [ProjectItem] {
+    viewModel?.projects ?? []
+  }
+
+  private var projectsSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack(spacing: 8) {
+        Text("مشاريعك")
+          .font(AppTypography.sectionTitle)
+          .foregroundStyle(Color.appTextPrimary)
+        countBadge(projects.count)
+        Spacer()
+      }
+      LazyVStack(spacing: 12) {
+        ForEach(projects) { project in
+          ProjectRowView(
+            project: project,
+            activeCount: viewModel?.activeCount(projectId: project.id) ?? 0,
+            progress: viewModel?.progress(projectId: project.id) ?? 0,
+            onOpen: { onOpenProject(project) },
+            onDelete: nil
+          )
+        }
+      }
+    }
+  }
+
+  private func countBadge(_ value: Int) -> some View {
+    Text("\(value)")
+      .font(AppTypography.numeral)
+      .foregroundStyle(Color.appPrimary)
+      .frame(width: 16, height: 16)
+      .background(Circle().fill(Color.appLavender))
+      .environment(\.layoutDirection, .leftToRight)
   }
 
   private static func todayLabel() -> String {
@@ -138,5 +266,51 @@ struct HomeView: View {
     formatter.locale = Locale(identifier: "ar_EG")
     formatter.dateFormat = "EEEE، d MMMM"
     return formatter.string(from: Date())
+  }
+}
+
+/// الكارت البارز — 202 عرض radius 19 pastel + اسم المشروع + شريط تقدم (شكل فيجما).
+private struct FeaturedProjectCard: View {
+  let project: ProjectItem
+  let activeCount: Int
+  let progress: Double
+  let onTap: () -> Void
+
+  var body: some View {
+    Button(action: onTap) {
+      VStack(alignment: .leading, spacing: 10) {
+        Text(project.emoji ?? "📁")
+          .font(.system(size: 17))
+          .frame(width: Metrics.iconChipSize, height: Metrics.iconChipSize)
+          .background(
+            RoundedRectangle(cornerRadius: Metrics.chipCornerRadius)
+              .fill(Color.appSurface.opacity(0.75))
+          )
+        Text(project.name)
+          .font(AppTypography.chipSelected)
+          .foregroundStyle(Color.appTextPrimary)
+          .lineLimit(1)
+        Text("\(activeCount) مهام مفتوحة")
+          .font(AppTypography.metadata)
+          .foregroundStyle(Color.appTextSecondary)
+        GeometryReader { geo in
+          ZStack(alignment: .leading) {
+            Capsule().fill(Color.appSurface)
+            Capsule()
+              .fill(Color.appPrimary)
+              .frame(width: max(6, geo.size.width * progress))
+              .animation(.easeOut(duration: 0.25), value: progress)
+          }
+        }
+        .frame(height: 6)
+      }
+      .padding(14)
+      .frame(width: 190, height: 116, alignment: .topLeading)
+      .background(
+        RoundedRectangle(cornerRadius: Metrics.secondaryCardCornerRadius)
+          .fill(ProjectPalette.color(forKey: project.colorKey))
+      )
+    }
+    .buttonStyle(.plain)
   }
 }

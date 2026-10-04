@@ -33,6 +33,7 @@ struct RootTabs: View {
 
   @State private var selection: AppTab = .home
   @State private var editorSeed: TaskEditorSeed?
+  @State private var homePath = NavigationPath()
 
   var body: some View {
     GeometryReader { geo in
@@ -42,8 +43,17 @@ struct RootTabs: View {
         Group {
           switch selection {
           case .home:
-            HomeView(repository: repository) {
-              selection = .tasks
+            NavigationStack(path: $homePath) {
+              HomeView(
+                repository: repository,
+                onOpenTasks: { selection = .tasks },
+                onOpenProject: { project in homePath.append(project) }
+              )
+              .navigationDestination(for: ProjectItem.self) { project in
+                TasksScreen(repository: repository, projectId: project.id)
+                  .navigationTitle(project.name)
+                  .navigationBarTitleDisplayMode(.inline)
+              }
             }
           case .calendar:
             NavigationStack {

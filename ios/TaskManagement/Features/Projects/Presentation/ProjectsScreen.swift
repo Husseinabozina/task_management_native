@@ -129,12 +129,13 @@ struct ProjectsScreen: View {
 }
 
 /// صف مشروع — شكل Task Group من الفيجما: chip 34 pastel بإيموجي + الاسم + «N مهام» + النسبة.
+/// onDelete اختياري: شاشة المشاريع تمرره، والرئيسية تعرض الصف للفتح فقط.
 struct ProjectRowView: View {
   let project: ProjectItem
   let activeCount: Int
   let progress: Double
   let onOpen: () -> Void
-  let onDelete: () -> Void
+  var onDelete: (() -> Void)? = nil
 
   var body: some View {
     Button(action: onOpen) {
@@ -169,8 +170,10 @@ struct ProjectRowView: View {
     }
     .buttonStyle(.plain)
     .contextMenu {
-      Button(role: .destructive, action: onDelete) {
-        Label("حذف المشروع", systemImage: "trash")
+      if let onDelete {
+        Button(role: .destructive, action: onDelete) {
+          Label("حذف المشروع", systemImage: "trash")
+        }
       }
     }
   }
