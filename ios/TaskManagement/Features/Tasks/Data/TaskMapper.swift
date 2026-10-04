@@ -9,6 +9,7 @@ enum TaskMapper {
       details: row.details,
       status: TaskStatus(rawValue: row.statusRaw) ?? .active,
       priority: TaskPriority(rawValue: row.priorityRaw) ?? .normal,
+      isPinned: row.isPinned,
       dueDay: row.dueDayDate.flatMap { CalendarDay(date: $0) },
       projectId: row.projectId,
       createdAt: row.createdAt,
@@ -20,8 +21,9 @@ enum TaskMapper {
   static func apply(_ input: NewTask, to row: PersistedTask, updatedAt: Date) {
     row.title = input.title
     row.details = input.details
-    row.statusRaw = TaskStatus.active.rawValue
+    row.statusRaw = input.status.rawValue
     row.priorityRaw = input.priority.rawValue
+    row.isPinned = input.isPinned
     row.dueDayDate = input.dueDay?.date
     row.projectId = input.projectId
     row.updatedAt = updatedAt

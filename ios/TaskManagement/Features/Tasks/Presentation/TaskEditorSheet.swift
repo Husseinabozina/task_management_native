@@ -23,6 +23,8 @@ struct TaskEditorSheet: View {
   @State private var title = ""
   @State private var details = ""
   @State private var priority: TaskPriority = .normal
+  @State private var status: TaskStatus = .active
+  @State private var isPinned = false
   @State private var hasDueDate = false
   @State private var dueDate = Date()
   @State private var isSaving = false
@@ -42,6 +44,25 @@ struct TaskEditorSheet: View {
             TextField("تفاصيل المهمة…", text: $details, axis: .vertical)
               .font(AppTypography.bodyText)
               .lineLimit(3...6)
+          }
+          fieldCard(label: "الحالة") {
+            HStack(spacing: 8) {
+              statusChip(.active, title: "مفتوحة")
+              statusChip(.inProgress, title: "شغالة عليها")
+              statusChip(.completed, title: "خلصت")
+              Spacer()
+            }
+          }
+          fieldCard(label: "التثبيت") {
+            Toggle(isOn: $isPinned) {
+              HStack(spacing: 6) {
+                Text("📌")
+                Text("مثبتة في أعلى القائمة")
+                  .font(AppTypography.bodyText)
+                  .foregroundStyle(Color.appTextPrimary)
+              }
+            }
+            .tint(Color.appPrimary)
           }
           fieldCard(label: "الأولوية") {
             HStack(spacing: 8) {
@@ -154,12 +175,32 @@ struct TaskEditorSheet: View {
       title = item.title
       details = item.details ?? ""
       priority = item.priority
+      status = item.status
+      isPinned = item.isPinned
       selectedProjectId = item.projectId
       if let day = item.dueDay {
         hasDueDate = true
         dueDate = day.date
       }
     }
+  }
+
+  private func statusChip(_ value: TaskStatus, title: String) -> some View {
+    let isSelected = status == value
+    return Button {
+      status = value
+    } label: {
+      Text(title)
+        .font(isSelected ? AppTypography.chipSelected : AppTypography.bodyText)
+        .foregroundStyle(isSelected ? Color.white : Color.appPrimary)
+        .padding(.horizontal, 14)
+        .frame(height: 34)
+        .background(
+          RoundedRectangle(cornerRadius: Metrics.chipCornerRadius)
+            .fill(isSelected ? Color.appPrimary : Color.appLavenderAlt)
+        )
+    }
+    .buttonStyle(.plain)
   }
 
   private func save() async {
@@ -186,7 +227,9 @@ struct TaskEditorSheet: View {
             details: trimmedDetails.isEmpty ? nil : trimmedDetails,
             priority: priority,
             dueDay: dueDay,
-            projectId: selectedProjectId
+            projectId: selectedProjectId,
+            status: status,
+            isPinned: isPinned
           )
         )
       case .edit(let item):
@@ -195,6 +238,8 @@ struct TaskEditorSheet: View {
           title: trimmedTitle,
           details: trimmedDetails.isEmpty ? nil : trimmedDetails,
           priority: priority,
+          status: status,
+          isPinned: isPinned,
           dueDay: dueDay,
           projectId: selectedProjectId
         )

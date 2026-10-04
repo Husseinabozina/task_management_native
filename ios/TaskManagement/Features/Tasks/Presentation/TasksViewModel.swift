@@ -53,10 +53,10 @@ final class TasksViewModel {
     }
   }
 
-  /// تبديل الإتمام — الحالة والوقت يتغيران في عملية واحدة بالمخزن (العقد).
+  /// الضغط على الـ pill: غير المكتملة تتمم (أيا كانت حالتها)، والمكتملة تُعاد مفتوحة (العقد D20).
   func toggleCompletion(of item: TaskItem) async -> String? {
     do {
-      _ = try repository.setCompleted(id: item.id, item.status == .active)
+      _ = try repository.setCompleted(id: item.id, item.status != .completed)
       return nil
     } catch let error as RepositoryError {
       return error.readableDescription

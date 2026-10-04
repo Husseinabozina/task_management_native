@@ -1,12 +1,12 @@
-Current phase: Checkpoint 7 كود مكتمل ومبني بنجاح (مجلد DerivedData معزول) — بانتظار التحقق البصري من المستخدم في Xcode بتاعه
-Project path: /Volumes/Hussein/DevStorage/Projects/task_management_native (الهارد الخارجي — والمسار /Users/husseinabozina/.zcode/workspace/default/task_management_native symlink ليه)
-Branch / HEAD: main — آخر commit: Checkpoint 7
-Approved scope: FEATURE_SCOPE V1 + فيجما (D8) + إضافات مرخصة (تقويم D18 + أقسام الرئيسية)
-Locked decisions: D1–D19 (جديد D19: شاشة تفاصيل المهمة بعرض Markdown + ضغطة الصف تفتح القراءة والمحرر منها)
-Completed behaviors (منطقيًا): الرئيسية مكتملة (جرس متأخرات كمؤشر حالة + كارتين بارزين لأهم مشروعين + مقطع مهام النهارده بأول 3 مع إتمام سريع + مقطع مشاريعك بالصفوف — الأقسام الفاضية تختفي) + شاشة تفاصيل المهمة (Markdown inline + كل البيانات + تعديل/حذف بتأكيد) + ضغطة الصف تفتح القراءة في كل القوائم
-Implemented but runtime-unverified: كل أعلاه بصريًا — البناء نجح في /tmp/tm_verify_dd لكن التشغيل والـ screenshots أُلغيا (السيميوليتر تعلق في الإقلاع والمستخدم تولى المشاهدة)
-Verification actually performed: xcodebuild ناجح في مجلد معزول، swiftc -parse نظيف، مراجعة يدوية؛ بوابة E-UIF-001 الجانبية لم تنفذ (المرجع منزّل في assets/figma/reference-frames/frame_home_reference.png جاهز للمقارنة)
-Known issues: إقلاع السيميوليتر علق مرة — الحل: simctl shutdown all ثم إعادة فتح
-Deferred features: docs/project/BACKLOG.md (بند 0 إكمال الرئيسية اتنفذ — يتحذف بعد اعتماد المستخدم)
-Native / visual review: user-owned — قائمة فحص عنصر-بعنصر أُرسلت له في الرسالة
-Exact next checkpoint: 7-ب — استقبال ملاحظات المستخدم على الرئيسية والتفاصيل ثم إغلاق وتنظيف BACKLOG
+Current phase: Checkpoint 8 مكتمل (حالة شغالة عليها + تثبيت 📌) — مبني بنجاح في مجلد معزول، بانتظار تجربة المستخدم (السيميوليتر كان معلقًا فتُرك له)
+Project path: /Volumes/Hussein/DevStorage/Projects/task_management_native (الهارد الخارجي — symlink في الـ workspace)
+Branch / HEAD: main — commit: Checkpoint 8
+Approved scope: V1 + فيجما D8 + إضافات مرخصة (D18/D19) + D20/D21
+Locked decisions: D1–D21 (جديد: D20 حالة شغالة عليها، D21 تثبيت المهام)
+Completed behaviors (منطقيًا): عقد الحالة صار 3 حالات + isPinned؛ الفلاتر 4؛ الترتيب مثبت أولًا؛ pills من الفيجما؛ المحرر فيه اختيار الحالة + تثبيت؛ الإتمام من الـpill يعمل من أي حالة غير مكتملة؛ الشغالة تدخل Today/Overdue وتُعد في العدادات
+Implemented but runtime-unverified: نفس أعلاه — build ناجح في /tmp/tm_verify_dd، التشغيل للـuser (السيميوليتر معلق الإقلاع)
+Verification actually performed: build ناجح، parse نظيف، مراجعة دلالية للفلاتر والعدادات (لا بقايا حالتين)، lightweight migration موثقة (خاصية جديدة بقيمة افتراضية)
+Known issues: migration SwiftData التلقائية تحتاج تشغيل حقيقي واحد للتأكد العملي (فتح التطبيق بعد التحديث)
+Deferred features: BACKLOG (بروفايل/اسم المستخدم، markdown display أُنجز في D19 والباقي board/templates/tags، تذكيرات، سحابة، أندرويد)
+Native / visual review: user-owned — بعد ⌘R: جرّب تغيير حالة مهمة من المحرر لـ«شغالة عليها» وشوف pill البرتقالي + ثبّت مهمة وشوفها أول القائمة + بياناتك القديمة لسه موجودة
+Exact next checkpoint: 9 — التذكيرات (بعد اعتماد الـ8) أو جلسة تخطيط السحابة — بقرار المستخدم

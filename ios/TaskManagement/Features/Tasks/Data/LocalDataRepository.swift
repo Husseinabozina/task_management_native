@@ -41,6 +41,8 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
     title: String,
     details: String?,
     priority: TaskPriority,
+    status: TaskStatus,
+    isPinned: Bool,
     dueDay: CalendarDay?,
     projectId: UUID?
   ) throws -> TaskItem {
@@ -49,6 +51,14 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
     row.title = title
     row.details = details
     row.priorityRaw = priority.rawValue
+    // تغيير الحالة وcompletedAt في نفس العملية (العقد): الدخول للإتمام يسجل الوقت، والخروج منه يمحوه.
+    row.statusRaw = status.rawValue
+    if status == .completed {
+      if row.completedAt == nil { row.completedAt = Date() }
+    } else {
+      row.completedAt = nil
+    }
+    row.isPinned = isPinned
     row.dueDayDate = dueDay?.date
     row.projectId = projectId
     row.updatedAt = Date()
@@ -62,6 +72,16 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
     let row = try fetchTaskRow(id: id)
     row.statusRaw = completed ? TaskStatus.completed.rawValue : TaskStatus.active.rawValue
     row.completedAt = completed ? Date() : nil
+    row.updatedAt = Date()
+    try save()
+    let item = TaskMapper.toDomain(row)
+    notifyChanged()
+    return item
+  }
+
+  func setPinned(id: UUID, _ pinned: Bool) throws -> TaskItem {
+    let row = try fetchTaskRow(id: id)
+    row.isPinned = pinned
     row.updatedAt = Date()
     try save()
     let item = TaskMapper.toDomain(row)
@@ -154,6 +174,7 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
         switch query.status {
         case .any: break
         case .active: if item.status != .active { return false }
+        case .inProgress: if item.status != .inProgress { return false }
         case .completed: if item.status != .completed { return false }
         }
         if case .day(let day) = query.day {
@@ -162,6 +183,8 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
         return true
       }
       .sorted { lhs, rhs in
+        // المثبتة أولًا داخل كل قائمة (قرار D21)، ثم التصنيف اليومي.
+        if lhs.isPinned != rhs.isPinned { return lhs.isPinned }
         let leftBucket = lhs.dayBucket(today: today)
         let rightBucket = rhs.dayBucket(today: today)
         if leftBucket != rightBucket { return leftBucket < rightBucket }
@@ -193,8 +216,9 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
       id: UUID(),
       title: input.title.trimmingCharacters(in: .whitespacesAndNewlines),
       details: input.details,
-      statusRaw: TaskStatus.active.rawValue,
+      statusRaw: input.status.rawValue,
       priorityRaw: input.priority.rawValue,
+      isPinned: input.isPinned,
       dueDayDate: input.dueDay?.date,
       projectId: input.projectId,
       createdAt: Date(),

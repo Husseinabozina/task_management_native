@@ -17,9 +17,9 @@ final class ProjectsViewModel {
     observe()
   }
 
-  /// عدد المهام المفتوحة لكل مشروع.
+  /// عدد المهام غير المكتملة لكل مشروع (مفتوحة + شغالة عليها).
   func activeCount(for projectId: UUID) -> Int {
-    allTasks.filter { $0.projectId == projectId && $0.status == .active }.count
+    allTasks.filter { $0.projectId == projectId && $0.status != .completed }.count
   }
 
   /// نسبة الإنجاز الحقيقية لكل مشروع: المكتمل ÷ الإجمالي.

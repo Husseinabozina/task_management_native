@@ -9,7 +9,7 @@ struct TaskRowView: View {
   let onToggleCompletion: () -> Void
 
   private var isOverdue: Bool {
-    guard item.status == .active, let dueDay = item.dueDay else { return false }
+    guard item.status != .completed, let dueDay = item.dueDay else { return false }
     return dueDay < CalendarDay.today()
   }
 
@@ -23,11 +23,18 @@ struct TaskRowView: View {
               .foregroundStyle(Color.appTextSecondary)
               .lineLimit(1)
           }
-          Text(item.title)
-            .font(AppTypography.bodyText)
-            .foregroundStyle(Color.appTextPrimary)
-            .multilineTextAlignment(.leading)
-            .lineLimit(2)
+          HStack(spacing: 4) {
+            if item.isPinned {
+              Text("📌")
+                .font(AppTypography.metadata)
+                .accessibilityLabel("مثبتة")
+            }
+            Text(item.title)
+              .font(AppTypography.bodyText)
+              .foregroundStyle(Color.appTextPrimary)
+              .multilineTextAlignment(.leading)
+              .lineLimit(2)
+          }
           if let dueDay = item.dueDay {
             HStack(spacing: 4) {
               Image("icon_time_circle")
@@ -64,20 +71,46 @@ struct TaskRowView: View {
   }
 
   /// pill الحالة هو زر الإتمام/الإعادة — سلوك حقيقي لا زخرفة.
+  /// الضغط: غير مكتملة → تتمم (أيا كانت حالتها)؛ مكتملة → تُعاد مفتوحة.
+  /// التحويل إلى «شغالة عليها» يتم من المحرر (قرار D20).
   private var statusPill: some View {
     Button(action: onToggleCompletion) {
-      Text(item.status == .active ? "مفتوحة" : "مكتملة")
+      Text(Self.statusTitle(for: item.status))
         .font(AppTypography.statusPill)
-        .foregroundStyle(item.status == .active ? Color.appStatusTodoText : Color.appPrimary)
+        .foregroundStyle(Self.statusForeground(for: item.status))
         .padding(.horizontal, 10)
         .padding(.vertical, 4)
         .background(
-          Capsule().fill(item.status == .active ? Color.appPastelSky : Color.appLavenderAlt)
+          Capsule().fill(Self.statusBackground(for: item.status))
         )
     }
     .buttonStyle(.plain)
     .animation(.easeOut(duration: 0.15), value: item.status)
-    .accessibilityLabel(item.status == .active ? "إتمام المهمة" : "إعادة فتح المهمة")
+    .accessibilityLabel(item.status == .completed ? "إعادة فتح المهمة" : "إتمام المهمة")
+  }
+
+  static func statusTitle(for status: TaskStatus) -> String {
+    switch status {
+    case .active: return "مفتوحة"
+    case .inProgress: return "شغالة عليها"
+    case .completed: return "مكتملة"
+    }
+  }
+
+  static func statusForeground(for status: TaskStatus) -> Color {
+    switch status {
+    case .active: return .appStatusTodoText
+    case .inProgress: return .appStatusProgress
+    case .completed: return .appPrimary
+    }
+  }
+
+  static func statusBackground(for status: TaskStatus) -> Color {
+    switch status {
+    case .active: return .appPastelSky
+    case .inProgress: return .appPastelPeach
+    case .completed: return .appLavenderAlt
+    }
   }
 
   static func dayLabel(for day: CalendarDay) -> String {

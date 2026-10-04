@@ -238,6 +238,7 @@ private struct StatusChips: View {
     HStack(spacing: 8) {
       chip(title: "الكل", value: .any)
       chip(title: "مفتوحة", value: .active)
+      chip(title: "شغالة", value: .inProgress)
       chip(title: "مكتملة", value: .completed)
       Spacer()
     }

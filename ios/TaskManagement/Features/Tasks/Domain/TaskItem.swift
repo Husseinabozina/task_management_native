@@ -1,8 +1,10 @@
 import Foundation
 
-/// حالة المهمة — عقد V1 حالتان فقط (قرار D11).
+/// حالة المهمة — ثلاث حالات (قرار D20 يلغي قصر D11 على حالتين): مفتوحة / شغالة عليها / مكتملة.
+/// الشغالة عليها تُحتسب ضمن مهام يومها (تدخل Today/Overdue) ولا تُعد مكتملة أبدًا.
 enum TaskStatus: String, Codable, Hashable {
   case active
+  case inProgress
   case completed
 }
 
@@ -33,6 +35,8 @@ struct TaskItem: Identifiable, Hashable {
   var details: String?
   var status: TaskStatus
   var priority: TaskPriority
+  /// مثبتة في أعلى القوائم (قرار D21).
+  var isPinned: Bool
   var dueDay: CalendarDay?
   var projectId: UUID?
   let createdAt: Date
@@ -47,6 +51,8 @@ struct NewTask: Hashable {
   var priority: TaskPriority = .normal
   var dueDay: CalendarDay?
   var projectId: UUID?
+  var status: TaskStatus = .active
+  var isPinned: Bool = false
 }
 
 /// فلتر القائمة — مطابق لعقد observeTasks (يوم + حالة + مشروع اختياري).
@@ -59,7 +65,9 @@ struct TaskQuery: Hashable {
 
   enum StatusFilter: Hashable {
     case any
+    /// «مفتوحة» — لم تبدأ بعد (ليست شغالة عليها وليست مكتملة).
     case active
+    case inProgress
     case completed
   }
 
@@ -93,10 +101,10 @@ enum TaskDayBucket: Hashable, Comparable {
 }
 
 extension TaskItem {
-  /// التصنيف يعتمد على الحالة: المكتملة لا تصير متأخرة أبدًا (العقد).
+  /// التصنيف يعتمد على الحالة: المكتملة لا تصير متأخرة أبدًا، والشغالة عليها تُحتسب في يومها (العقد D20).
   func dayBucket(today: CalendarDay) -> TaskDayBucket {
-    guard let dueDay else { return status == .completed ? .completed : .noDueDate }
-    guard status == .active else { return .completed }
+    guard status != .completed else { return .completed }
+    guard let dueDay else { return .noDueDate }
     switch dueDay.relation(to: today) {
     case .past: return .overdue
     case .sameDay: return .today

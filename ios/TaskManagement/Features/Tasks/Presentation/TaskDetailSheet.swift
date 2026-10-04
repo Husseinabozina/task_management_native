@@ -76,19 +76,30 @@ struct TaskDetailSheet: View {
 
   private var statusAndPriority: some View {
     HStack(spacing: 8) {
-      Text(item.status == .active ? "مفتوحة" : "مكتملة")
+      Text(TaskRowView.statusTitle(for: item.status))
         .font(AppTypography.statusPill)
-        .foregroundStyle(item.status == .active ? Color.appStatusTodoText : Color.appPrimary)
+        .foregroundStyle(TaskRowView.statusForeground(for: item.status))
         .padding(.horizontal, 10)
         .padding(.vertical, 4)
-        .background(Capsule().fill(item.status == .active ? Color.appPastelSky : Color.appLavenderAlt))
+        .background(Capsule().fill(TaskRowView.statusBackground(for: item.status)))
+      if item.isPinned {
+        Text("📌 مثبتة")
+          .font(AppTypography.statusPill)
+          .foregroundStyle(Color.appTextSecondary)
+          .padding(.horizontal, 10)
+          .padding(.vertical, 4)
+          .background(Capsule().fill(Color.appLavenderAlt))
+      }
       if item.priority != .normal {
         Text(Self.priorityLabel(for: item.priority))
           .font(AppTypography.statusPill)
-          .foregroundStyle(item.priority == .high ? Color.appStatusProgress : Color.appTextSecondary)
+          .foregroundStyle(
+            item.priority == .high ? Color.appStatusProgress : Color.appTextSecondary
+          )
           .padding(.horizontal, 10)
           .padding(.vertical, 4)
-          .background(Capsule().fill(item.priority == .high ? Color.appPastelPeach : Color.appLavenderAlt))
+          .background(
+            Capsule().fill(item.priority == .high ? Color.appPastelPeach : Color.appLavenderAlt))
       }
       Spacer()
     }
@@ -153,7 +164,7 @@ struct TaskDetailSheet: View {
   }
 
   private var isOverdue: Bool {
-    guard item.status == .active, let dueDay = item.dueDay else { return false }
+    guard item.status != .completed, let dueDay = item.dueDay else { return false }
     return dueDay < CalendarDay.today()
   }
 

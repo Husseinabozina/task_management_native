@@ -9,6 +9,8 @@ final class PersistedTask {
   var details: String?
   var statusRaw: String
   var priorityRaw: String
+  /// مثبتة في الأعلى (قرار D21) — خاصية جديدة بقيمة افتراضية: SwiftData يعمل migration خفيف تلقائيًا.
+  var isPinned: Bool = false
   /// بداية اليوم المحلي — يوم تقويمي بلا ساعة.
   var dueDayDate: Date?
   var projectId: UUID?
@@ -22,6 +24,7 @@ final class PersistedTask {
     details: String?,
     statusRaw: String,
     priorityRaw: String,
+    isPinned: Bool = false,
     dueDayDate: Date?,
     projectId: UUID?,
     createdAt: Date,
@@ -33,6 +36,7 @@ final class PersistedTask {
     self.details = details
     self.statusRaw = statusRaw
     self.priorityRaw = priorityRaw
+    self.isPinned = isPinned
     self.dueDayDate = dueDayDate
     self.projectId = projectId
     self.createdAt = createdAt

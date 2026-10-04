@@ -9,16 +9,21 @@ import Foundation
 protocol TaskRepository {
   func observeTasks(_ query: TaskQuery) -> AsyncStream<[TaskItem]>
   func create(_ input: NewTask) throws -> TaskItem
+  /// تغيير الحالة وcompletedAt يحدثان معًا في عملية حفظ واحدة (العقد).
   func update(
     id: UUID,
     title: String,
     details: String?,
     priority: TaskPriority,
+    status: TaskStatus,
+    isPinned: Bool,
     dueDay: CalendarDay?,
     projectId: UUID?
   ) throws -> TaskItem
   /// الإتمام وcompletedAt يتغيران معًا في عملية حفظ واحدة (العقد).
   func setCompleted(id: UUID, _ completed: Bool) throws -> TaskItem
+  /// التثبيت/إلغاؤه — يغيّر الترتيب في القوائم دون مساس بالحالة (قرار D21).
+  func setPinned(id: UUID, _ pinned: Bool) throws -> TaskItem
   func deleteTask(id: UUID) throws
 }
 

@@ -21,9 +21,9 @@ final class CalendarViewModel {
     }
   }
 
-  /// عدد المهام المفتوحة في يوم معين داخل الشهر المعروض.
+  /// عدد المهام غير المكتملة في يوم معين داخل الشهر المعروض (مفتوحة + شغالة عليها).
   func activeCount(on day: CalendarDay) -> Int {
-    tasks.filter { $0.dueDay == day && $0.status == .active }.count
+    tasks.filter { $0.dueDay == day && $0.status != .completed }.count
   }
 
   /// كل مهام يوم معين (مفتوحة ومكتملة) — للعرض التفصيلي.

@@ -19,6 +19,7 @@ import SwiftUI
       details: "مراجعة نهائية قبل التسليم",
       status: .active,
       priority: .high,
+      isPinned: true,
       dueDay: CalendarDay.today(),
       projectId: nil,
       createdAt: Date(),
@@ -32,6 +33,7 @@ import SwiftUI
       details: nil,
       status: .completed,
       priority: .normal,
+      isPinned: false,
       dueDay: CalendarDay.today(),
       projectId: nil,
       createdAt: Date(),
@@ -110,7 +112,8 @@ import SwiftUI
   }
 
   #Preview("الرئيسية — فاضية") {
-    HomeView(repository: PreviewSupport.inMemoryRepository(), onOpenTasks: {}, onOpenProject: { _ in })
+    HomeView(
+      repository: PreviewSupport.inMemoryRepository(), onOpenTasks: {}, onOpenProject: { _ in })
   }
 
   #Preview("الرئيسية — فيها مهام") {

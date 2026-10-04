@@ -36,9 +36,9 @@ final class HomeViewModel {
     return allTasks.filter { $0.dayBucket(today: today) == .overdue }.count
   }
 
-  /// المهام المفتوحة لليوم — لقسم «مهام النهارده».
+  /// المهام المفتوحة لليوم (مفتوحة أو شغالة عليها) — لقسم «مهام النهارده».
   var activeTodayTasks: [TaskItem] {
-    todayTasks.filter { $0.status == .active }
+    todayTasks.filter { $0.status != .completed }
   }
 
   /// أهم مشروعين نشاطًا (عدد المفتوحة ثم نسبة الإنجاز) — للكارتين البارزين.
@@ -55,7 +55,7 @@ final class HomeViewModel {
   }
 
   func activeCount(projectId: UUID) -> Int {
-    allTasks.filter { $0.projectId == projectId && $0.status == .active }.count
+    allTasks.filter { $0.projectId == projectId && $0.status != .completed }.count
   }
 
   func progress(projectId: UUID) -> Double {
@@ -70,10 +70,10 @@ final class HomeViewModel {
     return projects.first { $0.id == id }
   }
 
-  /// الإتمام/الإعادة من الرئيسية — يعيد رسالة خطأ إن فشل (العقد).
+  /// الإتمام/الإعادة من الرئيسية — غير المكتملة تتمم والمكتملة تُعاد (العقد D20).
   func toggleCompletion(of item: TaskItem) async -> String? {
     do {
-      _ = try repository.setCompleted(id: item.id, item.status == .active)
+      _ = try repository.setCompleted(id: item.id, item.status != .completed)
       return nil
     } catch let error as RepositoryError {
       return error.readableDescription
@@ -83,26 +83,30 @@ final class HomeViewModel {
   }
 
   private func observe() {
-    observationTasks.append(Task { [weak self] in
-      guard let stream = self?.repository.observeTasks(TaskQuery(day: .day(CalendarDay.today()))) else { return }
-      for await items in stream {
-        guard let self, !Task.isCancelled else { break }
-        self.todayTasks = items
-      }
-    })
-    observationTasks.append(Task { [weak self] in
-      guard let stream = self?.repository.observeTasks(TaskQuery()) else { return }
-      for await items in stream {
-        guard let self, !Task.isCancelled else { break }
-        self.allTasks = items
-      }
-    })
-    observationTasks.append(Task { [weak self] in
-      guard let stream = self?.repository.observeProjects() else { return }
-      for await items in stream {
-        guard let self, !Task.isCancelled else { break }
-        self.projects = items
-      }
-    })
+    observationTasks.append(
+      Task { [weak self] in
+        guard let stream = self?.repository.observeTasks(TaskQuery(day: .day(CalendarDay.today())))
+        else { return }
+        for await items in stream {
+          guard let self, !Task.isCancelled else { break }
+          self.todayTasks = items
+        }
+      })
+    observationTasks.append(
+      Task { [weak self] in
+        guard let stream = self?.repository.observeTasks(TaskQuery()) else { return }
+        for await items in stream {
+          guard let self, !Task.isCancelled else { break }
+          self.allTasks = items
+        }
+      })
+    observationTasks.append(
+      Task { [weak self] in
+        guard let stream = self?.repository.observeProjects() else { return }
+        for await items in stream {
+          guard let self, !Task.isCancelled else { break }
+          self.projects = items
+        }
+      })
   }
 }
