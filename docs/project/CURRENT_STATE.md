@@ -9,4 +9,5 @@ Verification actually performed: build ناجح معزول، parse نظيف، م
 Known issues: السيميوليتر كان معلقًا سابقة — لو عاد فاقفله وشغله من fresh
 Deferred features: BACKLOG محدث
 Native / visual review: user-owned — قائمة تجربة شاملة أُرسلت في الرسالة
-Exact next checkpoint: 10 — تجربة المستخدم الشاملة (كل الميزات + أول مزامنة سحابية) ← إغلاق V1 رسمي ← قرار C2/C3/أندرويد
+Extras shipped: ملف قبول رسمي (ACCEPTANCE_CHECKLIST.md — أ/ب/ج/د/هـ/و/ز) + خطة C2 (C2_PLAN.md — Apple Sign-In, outbox, مؤشرات، backoff — بانتظار قبول C1) + زر «إعادة جولة الترحيب» في شاشة الحساب (وعد Checkpoint 7)
+Exact next checkpoint: 10 — تجربة المستخدم وفق ACCEPTANCE_CHECKLIST.md بندًا بندًا ← إغلاق V1 رسمي ← اعتماد C2_PLAN ثم تنفيذه

@@ -29,6 +29,7 @@ struct AccountSheet: View {
             .font(AppTypography.bodyText)
         }
       }
+
     }
     .presentationDetents([.large])
   }
@@ -161,6 +162,9 @@ struct AuthFormView: View {
 struct SignedInView: View {
   let auth: AuthSession
   let sync: CloudSyncService
+  @Environment(AppSession.self) private var session
+  @Environment(\.dismiss) private var dismiss
+  @State private var showReplayConfirm = false
 
   var body: some View {
     ScrollView {
