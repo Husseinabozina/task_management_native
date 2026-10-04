@@ -18,7 +18,8 @@ protocol TaskRepository {
     status: TaskStatus,
     isPinned: Bool,
     dueDay: CalendarDay?,
-    projectId: UUID?
+    projectId: UUID?,
+    reminderDate: Date?
   ) throws -> TaskItem
   /// الإتمام وcompletedAt يتغيران معًا في عملية حفظ واحدة (العقد).
   func setCompleted(id: UUID, _ completed: Bool) throws -> TaskItem

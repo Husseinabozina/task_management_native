@@ -39,6 +39,8 @@ struct TaskItem: Identifiable, Hashable {
   var isPinned: Bool
   var dueDay: CalendarDay?
   var projectId: UUID?
+  /// موعد التذكير الكامل (تاريخ + ساعة) — nil = بدون تذكير (قرار D22).
+  var reminderDate: Date?
   let createdAt: Date
   var updatedAt: Date
   var completedAt: Date?
@@ -53,6 +55,7 @@ struct NewTask: Hashable {
   var projectId: UUID?
   var status: TaskStatus = .active
   var isPinned: Bool = false
+  var reminderDate: Date?
 }
 
 /// فلتر القائمة — مطابق لعقد observeTasks (يوم + حالة + مشروع اختياري).

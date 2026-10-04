@@ -1,12 +1,12 @@
-Current phase: Checkpoint 8 مكتمل (حالة شغالة عليها + تثبيت 📌) — مبني بنجاح في مجلد معزول، بانتظار تجربة المستخدم (السيميوليتر كان معلقًا فتُرك له)
+Current phase: Checkpoint 9 مكتمل (التذكيرات 🔔) — مبني بنجاح في مجلد معزول؛ الإشعارات الفعلية تحتاج تشغيل المستخدم (جدولة + إذن)
 Project path: /Volumes/Hussein/DevStorage/Projects/task_management_native (الهارد الخارجي — symlink في الـ workspace)
-Branch / HEAD: main — commit: Checkpoint 8
-Approved scope: V1 + فيجما D8 + إضافات مرخصة (D18/D19) + D20/D21
-Locked decisions: D1–D21 (جديد: D20 حالة شغالة عليها، D21 تثبيت المهام)
-Completed behaviors (منطقيًا): عقد الحالة صار 3 حالات + isPinned؛ الفلاتر 4؛ الترتيب مثبت أولًا؛ pills من الفيجما؛ المحرر فيه اختيار الحالة + تثبيت؛ الإتمام من الـpill يعمل من أي حالة غير مكتملة؛ الشغالة تدخل Today/Overdue وتُعد في العدادات
-Implemented but runtime-unverified: نفس أعلاه — build ناجح في /tmp/tm_verify_dd، التشغيل للـuser (السيميوليتر معلق الإقلاع)
-Verification actually performed: build ناجح، parse نظيف، مراجعة دلالية للفلاتر والعدادات (لا بقايا حالتين)، lightweight migration موثقة (خاصية جديدة بقيمة افتراضية)
-Known issues: migration SwiftData التلقائية تحتاج تشغيل حقيقي واحد للتأكد العملي (فتح التطبيق بعد التحديث)
-Deferred features: BACKLOG (بروفايل/اسم المستخدم، markdown display أُنجز في D19 والباقي board/templates/tags، تذكيرات، سحابة، أندرويد)
-Native / visual review: user-owned — بعد ⌘R: جرّب تغيير حالة مهمة من المحرر لـ«شغالة عليها» وشوف pill البرتقالي + ثبّت مهمة وشوفها أول القائمة + بياناتك القديمة لسه موجودة
-Exact next checkpoint: 9 — التذكيرات (بعد اعتماد الـ8) أو جلسة تخطيط السحابة — بقرار المستخدم
+Branch / HEAD: main — commit: Checkpoint 9
+Approved scope: V1 + فيجما D8 + إضافات مرخصة (D18/D19) + D20/D21/D22
+Locked decisions: D1–D22 (جديد D22: التذكيرات مربوطة بالمواعيد + مزامنة تلقائية للإشعارات + إذن لحظة التفعيل)
+Completed behaviors (منطقيًا): المحرر يعرض كارت «تذكير 🔔» فقط للمهام ذات موعد، بوقت قابل للاختيار (افتراضي 9 صباحًا يوم الموعد ويتبع تغيّر اليوم)؛ طلب الإذن لحظة التفعيل والرفض يعني لا حفظ للتذكير مع رسالة واضحة؛ إطفاء الموعد يطفئ التذكير؛ ReminderSync يراقب كل المهام ويجدول/يلغي/يحدث إشعارات النظام بهوية المهمة؛ إتمام أو حذف مهمة = إشعارها يُلغى؛ التفاصيل تعرض صف «التذكير 🔔» بمعاده؛ delegate يعرض البانر حتى والتطبيق مفتوح
+Implemented but runtime-unverified: جدولة الإشعار الفعلية ووصوله (يحتاج تشغيل المستخدم: ذكّرني بعد دقيقتين واقفل التطبيق وشوف)، وlightweight migration لـreminderDate عند أول فتح للنسخة الجديدة
+Verification actually performed: xcodebuild ناجح في /tmp/tm_verify_dd؛ parse نظيف؛ مراجعة مصادر ضد قواعد الدليل §21 (لا ادعاء تذكير قبل جدولة حقيقية — الحالة الحالية: الجدولة موجودة والتأكيد النهائي runtime)
+Known issues: إقلاع السيميوليتر كان معلقًا من قبل فالتشغيل مسند للمستخدم
+Deferred features: BACKLOG (بروفايل/اسم المستخدم، board/templates/tags المتبقي، السحابة والفريق، أندرويد)
+Native / visual review: user-owned — قائمة تجربة التذكيرات أُرسلت في الرسالة
+Exact next checkpoint: 10 — جلسة تخطيط السحابة والفريق (بقرار المستخدم) أو أي بند من BACKLOG يطلبه

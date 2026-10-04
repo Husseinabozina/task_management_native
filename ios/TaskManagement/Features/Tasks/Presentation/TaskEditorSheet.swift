@@ -27,6 +27,8 @@ struct TaskEditorSheet: View {
   @State private var isPinned = false
   @State private var hasDueDate = false
   @State private var dueDate = Date()
+  @State private var hasReminder = false
+  @State private var reminderDate = Date()
   @State private var isSaving = false
   @State private var errorMessage: String?
   @State private var projects: [ProjectItem] = []
@@ -118,6 +120,33 @@ struct TaskEditorSheet: View {
               .environment(\.locale, Locale(identifier: "ar_EG"))
             }
           }
+          if hasDueDate {
+            fieldCard(label: "تذكير 🔔 (اختياري)") {
+              Toggle(
+                "ذكّرني بالمهمة",
+                isOn: Binding(
+                  get: { hasReminder },
+                  set: { newValue in
+                    Task { await setReminder(newValue) }
+                  }
+                )
+              )
+              .font(AppTypography.bodyText)
+              .tint(Color.appPrimary)
+              if hasReminder {
+                DatePicker(
+                  "الموعد",
+                  selection: $reminderDate,
+                  displayedComponents: [.hourAndMinute]
+                )
+                .font(AppTypography.bodyText)
+                .environment(\.locale, Locale(identifier: "ar_EG"))
+                Text("هيوصلك إشعار بنفسجي في المعاد ده 📬")
+                  .font(AppTypography.fieldLabel)
+                  .foregroundStyle(Color.appTextSecondary)
+              }
+            }
+          }
           if let errorMessage {
             Text(errorMessage)
               .font(AppTypography.metadata)
@@ -145,6 +174,10 @@ struct TaskEditorSheet: View {
     }
     .presentationDetents([.large])
     .onAppear(perform: loadSeed)
+    .onChange(of: hasDueDate) { _, newValue in
+      // لا تذكير بدون موعد — إطفاء الموعد يطفئه.
+      if !newValue { hasReminder = false }
+    }
     .task {
       for await items in repository.observeProjects() {
         projects = items
@@ -182,6 +215,42 @@ struct TaskEditorSheet: View {
         hasDueDate = true
         dueDate = day.date
       }
+      if let reminder = item.reminderDate {
+        hasReminder = true
+        reminderDate = reminder
+      }
+    }
+  }
+
+  /// طلب إذن الإشعارات لحظة التفعيل — الرفض يعني لا تذكير ولا ادعاء بأنه سيشتغل (العقد D22).
+  private func setReminder(_ enabled: Bool) async {
+    guard enabled else {
+      hasReminder = false
+      return
+    }
+    let center = UNUserNotificationCenter.current()
+    let settings = await center.notificationSettings()
+    switch settings.authorizationStatus {
+    case .authorized, .provisional, .ephemeral:
+      break
+    case .notDetermined:
+      let granted = (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
+      guard granted else {
+        errorMessage = "الإشعارات مرفوضة — من غيرها مينفعش تذكير."
+        return
+      }
+    default:
+      errorMessage = "الإشعارات مقفولة من إعدادات النظام — فعّلها للتطبيق عشان التذكير يشتغل."
+      return
+    }
+    hasReminder = true
+    // حافظ على الوقت المختار وثبّت التذكير في يوم الموعد.
+    let calendar = Calendar.current
+    let hour = calendar.component(.hour, from: reminderDate)
+    let minute = calendar.component(.minute, from: reminderDate)
+    let second = calendar.component(.second, from: reminderDate)
+    if let aligned = calendar.date(bySettingHour: hour, minute: minute, second: second, of: dueDate) {
+      reminderDate = aligned
     }
   }
 
@@ -216,6 +285,8 @@ struct TaskEditorSheet: View {
     }
     let trimmedDetails = details.trimmingCharacters(in: .whitespacesAndNewlines)
     let dueDay = hasDueDate ? CalendarDay(date: dueDate) : nil
+    // التذكير مش شرعي بدون موعد (العقد D22).
+    let reminder = (hasDueDate && hasReminder) ? reminderDate : nil
     isSaving = true
     defer { isSaving = false }
     do {
@@ -229,7 +300,8 @@ struct TaskEditorSheet: View {
             dueDay: dueDay,
             projectId: selectedProjectId,
             status: status,
-            isPinned: isPinned
+            isPinned: isPinned,
+            reminderDate: reminder
           )
         )
       case .edit(let item):
@@ -241,7 +313,8 @@ struct TaskEditorSheet: View {
           status: status,
           isPinned: isPinned,
           dueDay: dueDay,
-          projectId: selectedProjectId
+          projectId: selectedProjectId,
+          reminderDate: reminder
         )
       }
       dismiss()

@@ -1,10 +1,17 @@
 import SwiftData
 import SwiftUI
+import UserNotifications
 
 @main
 struct TaskManagementApp: App {
   @State private var session = AppSession()
   private let bootstrap = AppDependencies.bootstrap()
+  @State private var notificationDelegate = NotificationDelegate()
+
+  init() {
+    // عرض الإشعار حتى والتطبيق مفتوح في المقدمة.
+    UNUserNotificationCenter.current().delegate = notificationDelegate
+  }
 
   var body: some Scene {
     WindowGroup {

@@ -44,7 +44,8 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
     status: TaskStatus,
     isPinned: Bool,
     dueDay: CalendarDay?,
-    projectId: UUID?
+    projectId: UUID?,
+    reminderDate: Date?
   ) throws -> TaskItem {
     let row = try fetchTaskRow(id: id)
     try validate(title: title, details: details)
@@ -59,6 +60,7 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
       row.completedAt = nil
     }
     row.isPinned = isPinned
+    row.reminderDate = reminderDate
     row.dueDayDate = dueDay?.date
     row.projectId = projectId
     row.updatedAt = Date()
@@ -223,7 +225,8 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
       projectId: input.projectId,
       createdAt: Date(),
       updatedAt: Date(),
-      completedAt: nil
+      completedAt: nil,
+      reminderDate: input.reminderDate
     )
   }
 

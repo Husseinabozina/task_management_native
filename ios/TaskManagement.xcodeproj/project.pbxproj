@@ -31,6 +31,7 @@
 		9FACE511AB17826CB56E86F6 /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABE5649C3A8288006E1AFE4 /* PrimaryButton.swift */; };
 		A7A66C90283FA1D31F9861AF /* PersistedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A054FC6E2BC57032A8811A25 /* PersistedModels.swift */; };
 		ACF04E13DCC15A79C132ADFE /* TaskMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E03A3EBACF40C7D36E9BDDE /* TaskMapper.swift */; };
+		BAAB03987048747C5FD8C70D /* ReminderSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BE20137D59794577B81CDB2 /* ReminderSync.swift */; };
 		BC8A600E5600511499F705BD /* RepositoryEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6FE621BA6149069ACAA8DC /* RepositoryEnvironment.swift */; };
 		C16F69CBDC82BBEE98B12710 /* TaskEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EEB22F83A10DDE58BA7D63 /* TaskEditorSheet.swift */; };
 		C1D1FECB85CF8BA2CA8716E5 /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD522A75F00B8C755E0E324D /* Typography.swift */; };
@@ -61,6 +62,7 @@
 		33ADD37CA53702047C56167D /* TasksScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksScreen.swift; sourceTree = "<group>"; };
 		364FD688EDEFA3634A93DAE1 /* LocalDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDataRepository.swift; sourceTree = "<group>"; };
 		3AA294E8021452A1BFCC595B /* TaskDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailSheet.swift; sourceTree = "<group>"; };
+		3BE20137D59794577B81CDB2 /* ReminderSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderSync.swift; sourceTree = "<group>"; };
 		3C6364ABA26C0CCEB207DFCD /* TaskManagement.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TaskManagement.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		44CA1E29AFACDD2EA16AB865 /* Previews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Previews.swift; sourceTree = "<group>"; };
 		4ABE5649C3A8288006E1AFE4 /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 			children = (
 				B8D195AA10FD59C3E18CCFB9 /* AppDependencies.swift */,
 				144FCD0D0C5AAD9D4A996CAC /* AppSession.swift */,
+				3BE20137D59794577B81CDB2 /* ReminderSync.swift */,
 				23614ED0FFEDCA2D770C24AD /* RootView.swift */,
 				03CDD525CDD4848D07A88725 /* TaskManagementApp.swift */,
 			);
@@ -411,6 +414,7 @@
 				CE7EC6A53EC0583D37BC8B3D /* ProjectPalette.swift in Sources */,
 				293D708B03F304ACD34846AE /* ProjectsScreen.swift in Sources */,
 				3A520277A15AA9D130AD6433 /* ProjectsViewModel.swift in Sources */,
+				BAAB03987048747C5FD8C70D /* ReminderSync.swift in Sources */,
 				BC8A600E5600511499F705BD /* RepositoryEnvironment.swift in Sources */,
 				0F101ADDCDD41AEE84B1AE5C /* RepositoryError.swift in Sources */,
 				00BBA3B86D5C17C97756848F /* RootView.swift in Sources */,

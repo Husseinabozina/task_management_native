@@ -149,6 +149,9 @@ struct TaskDetailSheet: View {
       if let dueDay = item.dueDay {
         metadataRow(label: "الموعد", value: TaskRowView.dayLabel(for: dueDay), isWarning: isOverdue)
       }
+      if let reminder = item.reminderDate {
+        metadataRow(label: "التذكير 🔔", value: Self.reminderLabel(for: reminder))
+      }
       metadataRow(label: "الأولوية", value: Self.priorityLabel(for: item.priority))
       metadataRow(label: "أُنشئت", value: Self.dateLabel(for: item.createdAt))
       metadataRow(label: "آخر تحديث", value: Self.dateLabel(for: item.updatedAt))
@@ -221,6 +224,13 @@ struct TaskDetailSheet: View {
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: "ar_EG")
     formatter.dateFormat = "d MMM، h:mm a"
+    return formatter.string(from: date)
+  }
+
+  private static func reminderLabel(for date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "ar_EG")
+    formatter.dateFormat = "EEE d MMM، h:mm a"
     return formatter.string(from: date)
   }
 }

@@ -12,6 +12,7 @@ enum TaskMapper {
       isPinned: row.isPinned,
       dueDay: row.dueDayDate.flatMap { CalendarDay(date: $0) },
       projectId: row.projectId,
+      reminderDate: row.reminderDate,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       completedAt: row.completedAt
@@ -24,6 +25,7 @@ enum TaskMapper {
     row.statusRaw = input.status.rawValue
     row.priorityRaw = input.priority.rawValue
     row.isPinned = input.isPinned
+    row.reminderDate = input.reminderDate
     row.dueDayDate = input.dueDay?.date
     row.projectId = input.projectId
     row.updatedAt = updatedAt

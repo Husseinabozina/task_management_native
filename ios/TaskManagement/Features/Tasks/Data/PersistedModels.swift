@@ -17,6 +17,8 @@ final class PersistedTask {
   var createdAt: Date
   var updatedAt: Date
   var completedAt: Date?
+  /// موعد التذكير الكامل — خاصية اختيارية جديدة: migration تلقائي (قرار D22).
+  var reminderDate: Date?
 
   init(
     id: UUID,
@@ -29,7 +31,8 @@ final class PersistedTask {
     projectId: UUID?,
     createdAt: Date,
     updatedAt: Date,
-    completedAt: Date?
+    completedAt: Date?,
+    reminderDate: Date? = nil
   ) {
     self.id = id
     self.title = title
@@ -42,6 +45,7 @@ final class PersistedTask {
     self.createdAt = createdAt
     self.updatedAt = updatedAt
     self.completedAt = completedAt
+    self.reminderDate = reminderDate
   }
 }
 
