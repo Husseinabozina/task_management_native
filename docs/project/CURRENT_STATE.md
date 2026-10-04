@@ -1,12 +1,12 @@
-Current phase: Checkpoint 9 مكتمل (التذكيرات 🔔) — مبني بنجاح في مجلد معزول؛ الإشعارات الفعلية تحتاج تشغيل المستخدم (جدولة + إذن)
+Current phase: جلسة تخطيط السحابة — CLOUD_PLAN.md v1 جاهز كمسودة قرار (لا implementation قبل موافقة المستخدم على البنية)
 Project path: /Volumes/Hussein/DevStorage/Projects/task_management_native (الهارد الخارجي — symlink في الـ workspace)
-Branch / HEAD: main — commit: Checkpoint 9
-Approved scope: V1 + فيجما D8 + إضافات مرخصة (D18/D19) + D20/D21/D22
-Locked decisions: D1–D22 (جديد D22: التذكيرات مربوطة بالمواعيد + مزامنة تلقائية للإشعارات + إذن لحظة التفعيل)
-Completed behaviors (منطقيًا): المحرر يعرض كارت «تذكير 🔔» فقط للمهام ذات موعد، بوقت قابل للاختيار (افتراضي 9 صباحًا يوم الموعد ويتبع تغيّر اليوم)؛ طلب الإذن لحظة التفعيل والرفض يعني لا حفظ للتذكير مع رسالة واضحة؛ إطفاء الموعد يطفئ التذكير؛ ReminderSync يراقب كل المهام ويجدول/يلغي/يحدث إشعارات النظام بهوية المهمة؛ إتمام أو حذف مهمة = إشعارها يُلغى؛ التفاصيل تعرض صف «التذكير 🔔» بمعاده؛ delegate يعرض البانر حتى والتطبيق مفتوح
-Implemented but runtime-unverified: جدولة الإشعار الفعلية ووصوله (يحتاج تشغيل المستخدم: ذكّرني بعد دقيقتين واقفل التطبيق وشوف)، وlightweight migration لـreminderDate عند أول فتح للنسخة الجديدة
-Verification actually performed: xcodebuild ناجح في /tmp/tm_verify_dd؛ parse نظيف؛ مراجعة مصادر ضد قواعد الدليل §21 (لا ادعاء تذكير قبل جدولة حقيقية — الحالة الحالية: الجدولة موجودة والتأكيد النهائي runtime)
-Known issues: إقلاع السيميوليتر كان معلقًا من قبل فالتشغيل مسند للمستخدم
-Deferred features: BACKLOG (بروفايل/اسم المستخدم، board/templates/tags المتبقي، السحابة والفريق، أندرويد)
-Native / visual review: user-owned — قائمة تجربة التذكيرات أُرسلت في الرسالة
-Exact next checkpoint: 10 — جلسة تخطيط السحابة والفريق (بقرار المستخدم) أو أي بند من BACKLOG يطلبه
+Branch / HEAD: main — commit: cloud plan v1
+Approved scope: V1 منفذة (Checkpoints 0-9) — بانتظار تجربة المستخدم الشاملة + قرار بنية السحابة
+Locked decisions: D1–D22 + CLOUD_PLAN (Supabase توصية معلقة على الاعتماد، مراحل C1→C2→C3)
+Completed behaviors: V1 كاملة محليًا — راجع Checkpoints 7/8/9 في تاريخ الـ git
+Implemented but runtime-unverified: تذكيرات Checkpoint 9 (جدولة الإشعار الفعلية + migration السمات الجديدة عند أول تشغيل)
+Verification actually performed: build ناجح معزول للـ 7/8/9 + parse نظيف + مراجع عنصرية؛ التشغيل والقبول البصري مستحقان من المستخدم (السيميوليتر كان معلقًا)
+Known issues: التحقق runtime المتراكم لـ 7/8/9 مستحق دفعة واحدة في أول تشغيل شامل
+Deferred features: BACKLOG محدث (السحابة الآن لها خطة معتمدة-مراجعة)
+Native / visual review: user-owned — شامل 7/8/9
+Exact next checkpoint: 10 — (أ) اعتماد خطة السحابة واختيار Supabase ثم تجهيز C1، أو (ب) ملاحظات من تجربة المستخدم الشاملة، أيهما أسبق
