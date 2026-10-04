@@ -185,6 +185,12 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
         case .inProgress: if item.status != .inProgress { return false }
         case .completed: if item.status != .completed { return false }
         }
+        switch query.priority {
+        case .any: break
+        case .low: if item.priority != .low { return false }
+        case .normal: if item.priority != .normal { return false }
+        case .high: if item.priority != .high { return false }
+        }
         if case .day(let day) = query.day {
           guard let dueDay = item.dueDay, dueDay == day else { return false }
         }

@@ -7,6 +7,10 @@ import Observation
 final class TasksViewModel {
   private(set) var tasks: [TaskItem] = []
   private(set) var isLoading = true
+  /// البحث الفوري بالعنوان — فلتر عرض فوق نتيجة الاستعلام (FEATURE_SCOPE: بحث case-insensitive).
+  var searchText = "" {
+    didSet { applySearch() }
+  }
   var query = TaskQuery() {
     didSet {
       guard query != oldValue else { return }
@@ -34,6 +38,21 @@ final class TasksViewModel {
     next.status = status
     query = next
   }
+
+  func selectPriority(_ priority: TaskQuery.PriorityFilter) {
+    var next = query
+    next.priority = priority
+    query = next
+  }
+
+  /// نتائج العرض بعد البحث — matching case-insensitive على العنوان.
+  var visibleTasks: [TaskItem] {
+    let term = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !term.isEmpty else { return tasks }
+    return tasks.filter { $0.title.localizedCaseInsensitiveContains(term) }
+  }
+
+  private func applySearch() {}
 
   /// الإضافة السريعة: تعيد رسالة خطأ إن فشلت، ولا تفقد النص عند الفشل (العقد).
   func addQuickTask(rawTitle: String) async -> String? {

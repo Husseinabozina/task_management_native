@@ -26,6 +26,7 @@ struct TasksScreen: View {
     VStack(spacing: 14) {
       WeekStrip(selection: viewModel.query.day) { viewModel.selectDay($0) }
       StatusChips(selection: viewModel.query.status) { viewModel.selectStatus($0) }
+      searchBar
       content
       quickAddBar
     }
@@ -61,9 +62,11 @@ struct TasksScreen: View {
       Spacer()
       ProgressView()
       Spacer()
-    } else if viewModel.tasks.isEmpty {
+    } else if viewModel.visibleTasks.isEmpty {
       Spacer()
-      let hasFilters = viewModel.query.day != .all || viewModel.query.status != .any
+      let hasFilters =
+        viewModel.query.day != .all || viewModel.query.status != .any
+        || viewModel.query.priority != .any || !viewModel.searchText.isEmpty
       ContentUnavailableView(
         hasFilters ? "مفيش نتايج بالفلتر ده" : "مفيش مهام لسه",
         systemImage: hasFilters ? "line.3.horizontal.decrease.circle" : "checklist",
@@ -77,7 +80,7 @@ struct TasksScreen: View {
     } else {
       ScrollView {
         LazyVStack(spacing: 12) {
-          ForEach(viewModel.tasks) { item in
+          ForEach(viewModel.visibleTasks) { item in
             TaskRowView(
               item: item,
               project: item.projectId.flatMap { id in projects.first { $0.id == id } },
@@ -94,6 +97,59 @@ struct TasksScreen: View {
         }
         .padding(.bottom, 96)
       }
+    }
+  }
+
+  /// بحث فوري بالعنوان + فلتر أولوية (نطاق V1: بحث وفلاتر).
+  private var searchBar: some View {
+    HStack(spacing: 8) {
+      Image(systemName: "magnifyingglass")
+        .font(.system(size: 14, weight: .semibold))
+        .foregroundStyle(Color.appTextSecondary)
+      TextField(
+        "دوّر على مهمة…", text: $viewModel.searchText,
+        prompt: Text("دوّر على مهمة…").foregroundStyle(Color.appTextSecondary)
+      )
+      .font(AppTypography.bodyText)
+      .textInputAutocapitalization(.never)
+      .autocorrectionDisabled()
+      priorityMenu
+    }
+    .padding(.horizontal, 16)
+    .frame(height: 46)
+    .background(Color.appSurface)
+    .clipShape(RoundedRectangle(cornerRadius: Metrics.cardCornerRadius))
+    .cardShadow()
+  }
+
+  private var priorityMenu: some View {
+    let current = viewModel.query.priority
+    let title: String = {
+      switch current {
+      case .any: return "الأولوية"
+      case .low: return "هادية"
+      case .normal: return "عادية"
+      case .high: return "مستعجلة"
+      }
+    }()
+    return Menu {
+      Button("كل الأولويات") { viewModel.selectPriority(.any) }
+      Button("مستعجلة") { viewModel.selectPriority(.high) }
+      Button("عادية") { viewModel.selectPriority(.normal) }
+      Button("هادية") { viewModel.selectPriority(.low) }
+    } label: {
+      HStack(spacing: 4) {
+        Text(title)
+          .font(AppTypography.statusPill)
+        Image(systemName: "chevron.down")
+          .font(.system(size: 9, weight: .bold))
+      }
+      .foregroundStyle(current == .any ? Color.appTextSecondary : Color.white)
+      .padding(.horizontal, 10)
+      .padding(.vertical, 5)
+      .background(
+        Capsule().fill(current == .any ? Color.appLavenderAlt : Color.appPrimary)
+      )
     }
   }
 

@@ -74,8 +74,16 @@ struct TaskQuery: Hashable {
     case completed
   }
 
+  enum PriorityFilter: Hashable {
+    case any
+    case low
+    case normal
+    case high
+  }
+
   var day: DayFilter = .all
   var status: StatusFilter = .any
+  var priority: PriorityFilter = .any
   var projectId: UUID?
 }
 
