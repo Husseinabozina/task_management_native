@@ -1,8 +1,8 @@
 # CURRENT_STATE — 2026-10-08
 
-Current phase: D33 public-repository review; D31 native reminders + D32 personal sync already published to GitHub; D30 README/showcase complete. TaskFlow motion awaits required platform clarification.
+Current phase: D33 public-repository review completed and published; D31 native reminders + D32 personal sync already published to GitHub; D30 README/showcase complete. TaskFlow motion awaits required platform clarification.
 Project path: repository checkout root (`task_management_native/`); machine paths remain local.
-Branch: main. Published code checkpoint: 51e4e34 (baseline ae98903); later documentation-only commits are listed in git log. User explicitly authorized committing/pushing all relevant work. The pre-existing deletion of iOS Package.resolved remains preserved; no reset, data clear or force push.
+Branch: main. Published application checkpoint: 51e4e34 (baseline ae98903); published public-repository review: cfdfc34, verified against remote main and GitHub API. Later documentation-only commits are listed in git log. User explicitly authorized committing/pushing all relevant work. The pre-existing deletion of iOS Package.resolved remains preserved; no reset, data clear or force push.
 Approved scope: User requested final Rive splash, completion of reminders and related personal sync, verification and GitHub upload. Current repo is Native SwiftUI/Compose, not Flutter. Required question pending: integrate TaskFlow using native SDKs here, or use a different Flutter project? No logo flow/dependency/asset was changed while that choice is unresolved.
 Locked decisions: D1–D33. D31/D32 supersede the earlier deferral of Android A3/A4. Native architecture, optional account, local data, existing onboarding/navigation and D26 presentation design preserved.
 
@@ -45,7 +45,9 @@ Implemented: expanded .gitignore for local environment, signing material, sessio
 
 Verified: all 19 baseline reachable commits / 322 unique blobs / 8,148,017 bytes scanned for credential patterns and sensitive filenames, including commit messages; no findings. Real iOS/Android Supabase configuration and Android local.properties were never tracked. Showcase JPEGs have no EXIF metadata; remaining PNG metadata contains image/software information, with no personal location/credential markers found. GitHub secret scanning and push protection were enabled and read back; alerts list was empty at the check. Live Supabase security advisor again returned no findings. Launcher syntax/local selection/environment precedence verified without build, installation or device access. Detailed scope and file reasons: PUBLIC_REPO_REVIEW_2026-10-08.md.
 
-Limits: this is a scoped credential/privacy review, not a complete application security assessment. No secret was identified that required key rotation or history rewriting. Old commits retain non-secret workstation/environment metadata; removing it from current documentation does not erase history. No runtime app verification was repeated for these documentation/launcher changes. Final delivery gate: normal commit/push and comparison of GitHub main with local HEAD; then continue the existing TaskFlow target clarification checkpoint.
+Delivery verified: normal push cfdfc34 succeeded; local HEAD, remote main and GitHub commit API matched. README, SECURITY.md and the review report returned HTTP 200 with bytes matching local files. GitHub rendered README retained the eight image names, both native stacks and security link. Post-push scan covered 20 reachable commits / 336 blobs with no findings. GitHub protections remained enabled and alert count was zero at the check.
+
+Limits: this is a scoped credential/privacy review, not a complete application security assessment. No secret was identified that required key rotation or history rewriting. Old commits retain non-secret workstation/environment metadata; removing it from current documentation does not erase history. No runtime app verification was repeated for these documentation/launcher changes. Next checkpoint remains the existing TaskFlow target clarification.
 
 ## الحالة السابقة — 2026-10-05 (تاريخية)
 
