@@ -1,4 +1,4 @@
-> 2026-10-08 D31/D32: التذكيرات Native والمزامنة الشخصية نُفذتا، Android build/lint وiOS simulator build/start نجحت، وRPC نُشر وفُحص بـ rollback fixtures. مرجع الحالة الحالية: [CURRENT_STATE](project/CURRENT_STATE.md). دمج TaskFlow ينتظر تحديد Native مقابل Flutter؛ لا تُنفذ تعليمات Flutter في هذا المشروع بلا إجابة. رفع GitHub مفوض صراحة في الطلب الحالي.
+> 2026-10-08 D31/D32: التذكيرات Native والمزامنة الشخصية نُفذتا ورُفعتا مع README والصور إلى GitHub، Android build/lint وiOS simulator build/start نجحت، وRPC نُشر وفُحص بـ rollback fixtures. مرجع الحالة الحالية: [CURRENT_STATE](project/CURRENT_STATE.md). دمج TaskFlow ينتظر تحديد Native مقابل Flutter؛ لا تُنفذ تعليمات Flutter في هذا المشروع بلا إجابة. D33 يراجع المستودع العام ويحمي الإعداد المحلي؛ التفاصيل في [تقرير المراجعة](project/PUBLIC_REPO_REVIEW_2026-10-08.md).
 
 # HANDOFF — تسليم المشروع كاملًا لموديل آخر (2026-10-04)
 
@@ -14,12 +14,12 @@
 | البند | القيمة |
 |---|---|
 | المنتج | «مهامي» — تطبيق مهام عربي RTL، Native فقط |
-| Repo (خاص) | Husseinabozina/task_management_native — main |
-| المسار المحلي | /Volumes/Hussein/DevStorage/Projects/task_management_native (الهارد الخارجي؛ symlink من ~/.zcode/workspace/default/task_management_native) |
+| Repo (عام منذ 2026-10-08) | Husseinabozina/task_management_native — main |
+| المسار المحلي | جذر النسخة المستنسخة `task_management_native/`؛ المسارات الخاصة بالجهاز تبقى محلية |
 | iOS | ios/ — SwiftUI، iOS 17+، @Observable، SwiftData، XcodeGen (project.yml = المصدر، .xcodeproj مولّد) |
 | أندرويد | android/ — Kotlin 2.2 + Compose + Room، minSdk 26، target 36 |
-| Supabase | مشروع قائم فعلًا: ref nqrqvmvucfdtfmoaiqgp (eu-central-1)، URL: https://nqrqvmvucfdtfmoaiqgp.supabase.co — السكيما منفذة ومتحقق منها، RLS owner-only، الـ anon key في ios/TaskManagement/Resources/SupabaseConfig.plist (0600، gitignored) |
-| أدوات | Xcode 26.2، JDK 24 (Temurin) + Gradle 8.14.3 (اشتغلوا معًا بنجاح)، SDK أندرويد: /Volumes/Hussein/DevStorage/Android/sdk، GRADLE_USER_HOME=/Volumes/Hussein/DevStorage/Gradle/user-home (الديسك الداخلي فيه 3GB فقط — لا تبنِ عليه) |
+| Supabase | مشروع قائم فعلًا؛ URL ومعرف البيئة في الإعداد المحلي فقط. السكيما منفذة ومتحقق منها، RLS owner-only، والمفتاح العام في ios/TaskManagement/Resources/SupabaseConfig.plist (0600، gitignored) |
+| أدوات | Xcode 26.2، JDK 24 (Temurin) + Gradle 8.14.3 (اشتغلوا معًا بنجاح)؛ اضبط ANDROID_HOME وGRADLE_USER_HOME أو android/local.properties محليًا |
 | الجهاز | macOS arm64، darwin 25.5.0 |
 
 ## 2) القواعد الثابتة (لا تخالفها)
@@ -53,7 +53,7 @@
 - **C9**: أيقونة تطبيق مولدة (1024 بنفسجي + صح) + زر + بحجم glyph الأصلي.
 
 ### السحابة C1 (Supabase)
-- **مشروع قائم**: nqrqvmvucfdtfmoaiqgp — السكيما منفذة (profiles/projects/tasks + RLS owner-only + triggers revision + tombstones deleted_at) ومتحقق منها من قاعدة البيانات + تصليح صلاحيات (anon مرفوض، authenticated CRUD فقط) + security advisors نضيف (شغل Codex، commit b4ad5ac).
+- **مشروع قائم بالإعداد المحلي**: السكيما منفذة (profiles/projects/tasks + RLS owner-only + triggers revision + tombstones deleted_at) ومتحقق منها من قاعدة البيانات + تصليح صلاحيات (anon مرفوض، authenticated CRUD فقط) + security advisors نضيف (شغل Codex، commit b4ad5ac).
 - **كود التطبيق**: AuthSession (دخول/حساب جديد برسائل عربية) + AccountSheet (من ☁️ في الرأس؛ بدون config تعرض خطوات الإعداد) + CloudSyncService (دفع/جلب full snapshot بـ LWW + tombstones + **نسخة احتياطية إلزامية قبل أول مزامنة** إلى Documents/Backups) + CloudBundle عبر environment.
 - **schema.sql** في docs/supabase/ (المصدر — **لا تشغله تاني** على المشروع القائم).
 
@@ -83,7 +83,7 @@
 ```kotlin
 @Query("SELECT * FROM tasks")
 ```
-ونفس الشيء لاستعلام projects. ثم: `export GRADLE_USER_HOME=/Volumes/Hussein/DevStorage/Gradle/user-home && export ANDROID_HOME=/Volumes/Hussein/DevStorage/Android/sdk && ./gradlew assembleDebug` من مجلد android/.
+ونفس الشيء لاستعلام projects. بعد ضبط ANDROID_HOME وGRADLE_USER_HOME لمسارات جهازك، شغّل `./gradlew assembleDebug` من مجلد android/.
 
 **بعد نجاح البناء**: اربط LocalTaskRepository بالـ MainActivity (استبدل الـ stub) أو أكمل A2 (واجهة مهامي بـ Compose).
 

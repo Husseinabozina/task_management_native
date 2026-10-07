@@ -25,3 +25,47 @@ ios/TaskManagement/Resources/SupabaseConfig.plist
 android/supabase.properties
 android/.kotlin/
 supabase/.temp/
+
+# Local environment and credentials (keep portable examples)
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.sample
+!.env.template
+*.local.properties
+*.local.xcconfig
+.netrc
+.npmrc
+.aws/
+.ssh/
+credentials.json
+service-account*.json
+service_account*.json
+
+# Private signing material and machine-specific service configuration
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.mobileprovision
+*.pem
+*.key
+key.properties
+keystore.properties
+GoogleService-Info.plist
+google-services.json
+
+# App data, session exports and local backups
+Backups/
+backups/
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+*.db
+*.db-shm
+*.db-wal
+*.log
+*.apk
+*.aab

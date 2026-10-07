@@ -4,7 +4,7 @@ The optional account flow never blocks local tasks or onboarding. Both native cl
 
 ## Existing project
 
-- [Supabase dashboard](https://supabase.com/dashboard/project/nqrqvmvucfdtfmoaiqgp).
+- Open your configured project in the [Supabase dashboard](https://supabase.com/dashboard). The owner's environment identifier and URL are kept in local configuration.
 - Initial schema and privileges were already deployed. Do not rerun `schema.sql` on this project.
 - Migration `20261007230659_personal_sync_rpc` deployed on 2026-10-08 (Cairo time).
 - Security advisor returned no findings after deployment.

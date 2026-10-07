@@ -2,8 +2,23 @@
 set -euo pipefail
 
 TASK_PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-TASK_SDK_ROOT="${ANDROID_HOME:-/Volumes/Hussein/DevStorage/Android/sdk}"
-TASK_GRADLE_CACHE="${GRADLE_USER_HOME:-/Volumes/Hussein/DevStorage/Gradle/user-home}"
+
+# Machine paths belong in the environment or ignored local.properties.
+task_local_property() {
+    local TASK_VALUE=""
+    if [ -f "$TASK_PROJECT_ROOT/android/local.properties" ]; then
+        TASK_VALUE="$(sed -n "s/^$1=//p" "$TASK_PROJECT_ROOT/android/local.properties" | head -n 1)"
+    fi
+    TASK_VALUE="${TASK_VALUE//\\:/:}"
+    TASK_VALUE="${TASK_VALUE//\\ / }"
+    TASK_VALUE="${TASK_VALUE//\\\\/\\}"
+    printf '%s' "$TASK_VALUE"
+}
+
+TASK_SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$(task_local_property 'sdk\.dir')}}"
+TASK_SDK_ROOT="${TASK_SDK_ROOT:-$HOME/Library/Android/sdk}"
+TASK_GRADLE_CACHE="${GRADLE_USER_HOME:-$(task_local_property 'taskmanagement\.gradleUserHome')}"
+TASK_GRADLE_CACHE="${TASK_GRADLE_CACHE:-$HOME/.gradle}"
 TASK_ADB="$TASK_SDK_ROOT/platform-tools/adb"
 TASK_DEVICE_ID=""
 TASK_SEED_DEMO=false

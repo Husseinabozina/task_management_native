@@ -21,7 +21,7 @@ data/PresentationDemoData، مدخل تشخيصي في MainActivity وViewModel�
 ## ما نُفذ وتحقق بالفعل
 
 - `assembleDebug` و`lintDebug` نجحا بعد التعديل؛ لا أخطاء lint والتحذيرات العشرة السابقة غير المانعة كما هي. توقيع v2 صالح و`git diff --check` نجح.
-- `android/run-on-device.command --seed-demo` جُرّب: بنى النسخة وثبتها بـ install -r وفتح MainActivity بـ Status: ok على CPH2641 / Android 15. النسخة المحدثة وملف double-click والدليل في outputs الخاصة بالمحادثة.
+- `android/run-on-device.command --seed-demo` جُرّب: بنى النسخة وثبتها بـ install -r وفتح MainActivity بـ Status: ok على هاتف Android 15. النسخة المحدثة وملف double-click والدليل في outputs الخاصة بالمحادثة.
 - سجل MahamiDemo بعد transaction: `Imported projects=4 tasks=16`. إعادة intent الصريح لنفس الـActivity نجحت وسجّلت `Imported projects=0 tasks=0`؛ هذه مشاهدة فعلية لعدم التكرار. قراءة الكود تثبت عدم upsert للصفوف الموجودة واحترام آثار الحذف، دون تجربة حذف بيانات المستخدم.
 - PID 12139 كان حيًا وMainActivity كانت topResumedActivity. بيانات العرض في Room، لا حالة شاشة مؤقتة. لم يُمسح التخزين ولم يُحذف التطبيق.
 - 5 مهام مكتملة، 3 قيد التنفيذ، 8 مفتوحة؛ 7 مواعيد لليوم منها 3 مكتملة، ومهمة متأخرة ومهمتان مثبتتان. النسب الظاهرة تعتمد على أي بيانات أخرى موجودة بالهاتف.

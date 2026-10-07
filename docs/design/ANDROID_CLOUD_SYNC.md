@@ -4,7 +4,7 @@
 
 المستخدم طلب استكمال «التذكيرات وكدا» بعد مناقشة تأجيل التذكيرات والمزامنة، ورفع كل العمل. نفهم النطاق استكمال A3/A4 في مشروع Native القائم، لا تحويله إلى Flutter. دمج اللوجو له سؤال منصة مستقل ما زال معلقًا.
 
-Supabase الحالي nqrqvmvucfdtfmoaiqgp متاح، وجداول tasks/projects مطابقة للمصدر، وRLS owner-only مفعّل. تحقق SQL اقتصر على metadata. Room v1 موجود وreminderDate مهيأ. حساب iOS اختياري ومزامنته يدوية. مراجعة iOS كشفت عيوبًا مؤثرة في التشغيل المشترك: push غير مشروط قبل pull، trigger يبدل updated_at إلى وقت الاستلام، tombstone upsert دون الحقول المطلوبة، due_day كنموذج Date رغم كونه يومًا فقط، وPersistedTombstone غير مدرج في Bootstrap schema. تُصحح الأجزاء اللازمة للتوافق بدل نسخ العيوب لأندرويد.
+Supabase الحالي المحدد بالإعداد المحلي متاح، وجداول tasks/projects مطابقة للمصدر، وRLS owner-only مفعّل. تحقق SQL اقتصر على metadata. Room v1 موجود وreminderDate مهيأ. حساب iOS اختياري ومزامنته يدوية. مراجعة iOS كشفت عيوبًا مؤثرة في التشغيل المشترك: push غير مشروط قبل pull، trigger يبدل updated_at إلى وقت الاستلام، tombstone upsert دون الحقول المطلوبة، due_day كنموذج Date رغم كونه يومًا فقط، وPersistedTombstone غير مدرج في Bootstrap schema. تُصحح الأجزاء اللازمة للتوافق بدل نسخ العيوب لأندرويد.
 
 ## معايير القبول
 

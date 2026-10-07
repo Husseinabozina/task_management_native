@@ -169,11 +169,13 @@ export GRADLE_USER_HOME="$HOME/.gradle"
 ./android/run-on-device.command --seed-demo
 ```
 
-The script also accepts `--serial DEVICE_ID` when multiple phones are connected. Demo identifiers are stable: repeat imports preserve existing rows and respect deleted samples. Once installed, open **مهامي** from the phone's launcher without a computer or cable.
+The script also accepts `--serial DEVICE_ID` when multiple phones are connected. It reads `sdk.dir` and the optional `taskmanagement.gradleUserHome` from ignored `android/local.properties`; environment variables take precedence. Demo identifiers are stable: repeat imports preserve existing rows and respect deleted samples. Once installed, open **مهامي** from the phone's launcher without a computer or cable.
 
 ### Optional personal cloud sync
 
 Local tasks work without an account. To enable email/password accounts and manual sync in your build, follow the [cloud setup guide](docs/supabase/SETUP.md). Real client configuration stays outside Git; each platform includes a configuration example. The first sync saves a local backup and binds the local data set to that account.
+
+See [Security and local configuration](SECURITY.md) before adding keys, signing files or app data to a checkout.
 
 ### Repository map
 

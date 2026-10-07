@@ -61,8 +61,8 @@
 ### أمر إعادة البناء
 
 ```sh
-GRADLE_USER_HOME=/Volumes/Hussein/DevStorage/Gradle/user-home \
-ANDROID_HOME=/Volumes/Hussein/DevStorage/Android/sdk \
+GRADLE_USER_HOME="$HOME/.gradle" \
+ANDROID_HOME="/path/to/Android/sdk" \
 ./android/gradlew -p android :app:assembleDebug :app:lintDebug \
 -Pkotlin.compiler.execution.strategy=in-process
 ```
@@ -84,7 +84,7 @@ ANDROID_HOME=/Volumes/Hussein/DevStorage/Android/sdk \
 
 ## تشغيل الهاتف بطلب لاحق — D28، 2026-10-07
 
-المستخدم طلب تشغيل النسخة على الموبايل المتصل. تثبيت APK الحالي بـ install -r نجح على CPH2641 / Android 15، وتشغيل MainActivity رجع Status: ok، مع PID حي وActivity في foreground/resumed. لا حذف بيانات أو إعادة تهيئة. هذا تحقق تثبيت وفتح فعلي فقط؛ لم تُجرَ جولة CRUD أو معاينة صورة أو مقارنة بصرية. حدود عدم التشغيل السابقة في هذا المستند تخص ما قبل هذا الطلب.
+المستخدم طلب تشغيل النسخة على الموبايل المتصل. تثبيت APK الحالي بـ install -r نجح على هاتف Android 15، وتشغيل MainActivity رجع Status: ok، مع PID حي وActivity في foreground/resumed. لا حذف بيانات أو إعادة تهيئة. هذا تحقق تثبيت وفتح فعلي فقط؛ لم تُجرَ جولة CRUD أو معاينة صورة أو مقارنة بصرية. حدود عدم التشغيل السابقة في هذا المستند تخص ما قبل هذا الطلب.
 
 ## بيانات العرض والتشغيل الذاتي — D29، 2026-10-07
 
