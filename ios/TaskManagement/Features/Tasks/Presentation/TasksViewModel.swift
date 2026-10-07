@@ -68,7 +68,7 @@ final class TasksViewModel {
     } catch let error as RepositoryError {
       return error.readableDescription
     } catch {
-      return "حصلت مشكلة غير متوقعة أثناء الحفظ."
+      return "حدثت مشكلة غير متوقعة أثناء الحفظ."
     }
   }
 
@@ -80,7 +80,7 @@ final class TasksViewModel {
     } catch let error as RepositoryError {
       return error.readableDescription
     } catch {
-      return "حصلت مشكلة غير متوقعة أثناء الحفظ."
+      return "حدثت مشكلة غير متوقعة أثناء الحفظ."
     }
   }
 

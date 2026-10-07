@@ -11,6 +11,7 @@ import com.husseinabozina.taskmanagement.domain.TaskPriority
 import com.husseinabozina.taskmanagement.domain.TaskQuery
 import com.husseinabozina.taskmanagement.domain.TaskRepository
 import com.husseinabozina.taskmanagement.domain.TaskStatus
+import androidx.room.withTransaction
 import java.time.Instant
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
@@ -21,10 +22,11 @@ import kotlinx.coroutines.flow.map
  * كل mutation يُحفظ ثم يُبلّغ الـ Flows — فشل الكتابة يرد failure ولا يظهر نجاحًا وهميًا.
  */
 class LocalTaskRepository(
-    private val taskDao: TaskDao,
-    private val projectDao: ProjectDao,
-    private val tombstoneDao: TombstoneDao
+    private val database: AppDatabase
 ) : TaskRepository, ProjectRepository {
+    private val taskDao = database.taskDao()
+    private val projectDao = database.projectDao()
+    private val tombstoneDao = database.tombstoneDao()
 
     override fun observeTasks(query: TaskQuery): Flow<List<TaskItem>> =
         taskDao.observeAll().map { rows ->
@@ -59,15 +61,16 @@ class LocalTaskRepository(
                 .sortedWith(
                     compareBy<TaskItem> { it.isPinned.not() }
                         .thenBy { it.dayBucket(today) }
-                        .thenBy { it.priority }
+                        .thenBy { it.priority.sortRank }
                         .thenBy { it.dueDay?.date ?: java.time.LocalDate.MAX }
                         .thenBy { it.id }
                 )
         }
 
-    override suspend fun create(input: NewTask): TaskItem {
+    override suspend fun create(input: NewTask): TaskItem = database.withTransaction {
         val title = input.title.trim()
         validate(title, input.details)
+        requireProject(input.projectId)
         val now = Instant.now()
         val entity = TaskEntity(
             id = UUID.randomUUID(),
@@ -81,10 +84,10 @@ class LocalTaskRepository(
             reminderDate = input.reminderDate,
             createdAt = now,
             updatedAt = now,
-            completedAt = null
+            completedAt = if (input.status == TaskStatus.COMPLETED) now else null
         )
         taskDao.upsert(entity)
-        return toDomain(entity)
+        toDomain(entity)
     }
 
     override suspend fun update(
@@ -97,46 +100,43 @@ class LocalTaskRepository(
         dueDay: CalendarDay?,
         projectId: UUID?,
         reminderDate: Instant?
-    ): TaskItem {
+    ): TaskItem = database.withTransaction {
         val row = taskDao.byId(id) ?: throw RepositoryError.NotFound
         validate(title, details)
-        row.title = title.trim()
-        row.details = details
-        row.priorityRaw = priority.raw
-        // تغيير الحالة وcompletedAt في نفس العملية (العقد).
-        row.statusRaw = status.raw
-        if (status == TaskStatus.COMPLETED) {
-            if (row.completedAt == null) row.completedAt = Instant.now()
-        } else {
-            row.completedAt = null
-        }
-        row.isPinned = isPinned
-        row.reminderDate = reminderDate
-        row.dueDay = dueDay?.date
-        row.projectId = projectId
-        row.updatedAt = Instant.now()
-        taskDao.upsert(row)
-        return toDomain(row)
+        requireProject(projectId)
+        val now = Instant.now()
+        val updated = row.copy(
+            title = title.trim(), details = details?.trim()?.takeIf { it.isNotEmpty() },
+            priorityRaw = priority.raw, statusRaw = status.raw, isPinned = isPinned,
+            dueDay = dueDay?.date, projectId = projectId, reminderDate = reminderDate,
+            updatedAt = now,
+            completedAt = if (status == TaskStatus.COMPLETED) row.completedAt ?: now else null
+        )
+        taskDao.upsert(updated)
+        toDomain(updated)
     }
 
-    override suspend fun setCompleted(id: UUID, completed: Boolean): TaskItem {
+    override suspend fun setCompleted(id: UUID, completed: Boolean): TaskItem = database.withTransaction {
         val row = taskDao.byId(id) ?: throw RepositoryError.NotFound
-        row.statusRaw = if (completed) TaskStatus.COMPLETED.raw else TaskStatus.ACTIVE.raw
-        row.completedAt = if (completed) Instant.now() else null
-        row.updatedAt = Instant.now()
-        taskDao.upsert(row)
-        return toDomain(row)
+        val now = Instant.now()
+        val updated = row.copy(
+            statusRaw = if (completed) TaskStatus.COMPLETED.raw else TaskStatus.ACTIVE.raw,
+            completedAt = if (completed) row.completedAt ?: now else null,
+            updatedAt = now
+        )
+        taskDao.upsert(updated)
+        toDomain(updated)
     }
 
-    override suspend fun setPinned(id: UUID, pinned: Boolean): TaskItem {
+    override suspend fun setPinned(id: UUID, pinned: Boolean): TaskItem = database.withTransaction {
         val row = taskDao.byId(id) ?: throw RepositoryError.NotFound
-        row.isPinned = pinned
-        row.updatedAt = Instant.now()
-        taskDao.upsert(row)
-        return toDomain(row)
+        val updated = row.copy(isPinned = pinned, updatedAt = Instant.now())
+        taskDao.upsert(updated)
+        toDomain(updated)
     }
 
-    override suspend fun deleteTask(id: UUID) {
+    override suspend fun deleteTask(id: UUID): Unit = database.withTransaction {
+        if (taskDao.byId(id) == null) throw RepositoryError.NotFound
         taskDao.deleteById(id)
         tombstoneDao.upsert(
             TombstoneEntity(kind = "task", rowId = id, deletedAt = Instant.now(), key = "task:$id")
@@ -146,7 +146,7 @@ class LocalTaskRepository(
     override fun observeProjects(): Flow<List<ProjectItem>> =
         projectDao.observeAll().map { rows -> rows.map(::toDomain) }
 
-    override suspend fun createProject(input: NewProject): ProjectItem {
+    override suspend fun createProject(input: NewProject): ProjectItem = database.withTransaction {
         val name = input.name.trim()
         if (name.isEmpty() || name.length > PROJECT_NAME_LIMIT) {
             throw RepositoryError.ValidationFailed("اسم المشروع مطلوب (حتى $PROJECT_NAME_LIMIT حرف).")
@@ -157,33 +157,41 @@ class LocalTaskRepository(
             colorKey = input.colorKey, createdAt = now, updatedAt = now
         )
         projectDao.upsert(entity)
-        return toDomain(entity)
+        toDomain(entity)
     }
 
     override suspend fun updateProject(
         id: UUID, name: String, emoji: String?, colorKey: String?
-    ): ProjectItem {
+    ): ProjectItem = database.withTransaction {
         val row = projectDao.byId(id) ?: throw RepositoryError.NotFound
         val trimmed = name.trim()
         if (trimmed.isEmpty() || trimmed.length > PROJECT_NAME_LIMIT) {
             throw RepositoryError.ValidationFailed("اسم المشروع مطلوب (حتى $PROJECT_NAME_LIMIT حرف).")
         }
-        row.name = trimmed
-        row.emoji = emoji
-        row.colorKey = colorKey
-        row.updatedAt = Instant.now()
-        projectDao.upsert(row)
-        return toDomain(row)
+        val updated = row.copy(
+            name = trimmed, emoji = emoji, colorKey = colorKey, updatedAt = Instant.now()
+        )
+        projectDao.upsert(updated)
+        toDomain(updated)
     }
 
-    override suspend fun deleteProject(id: UUID) {
+    override suspend fun deleteProject(id: UUID): Unit = database.withTransaction {
+        if (projectDao.byId(id) == null) throw RepositoryError.NotFound
+        val now = Instant.now()
+        taskDao.detachProject(id, now)
         projectDao.deleteById(id)
         tombstoneDao.upsert(
-            TombstoneEntity(kind = "project", rowId = id, deletedAt = Instant.now(), key = "project:$id")
+            TombstoneEntity(kind = "project", rowId = id, deletedAt = now, key = "project:$id")
         )
     }
 
     // MARK: - أدوات داخلية
+
+    private suspend fun requireProject(id: UUID?) {
+        if (id != null && projectDao.byId(id) == null) {
+            throw RepositoryError.ValidationFailed("المشروع المحدد غير موجود. اختر مشروعًا آخر.")
+        }
+    }
 
     private fun validate(title: String, details: String?) {
         val trimmed = title.trim()

@@ -1,23 +1,35 @@
-# SETUP — السحابة جاهزة للتجربة
+# Personal sync setup — iOS + Android
 
-تم إنشاء مشروع `task_management_native` في `Husseinabozina's Org` بتاريخ 2026-10-04، بمنطقة `eu-central-1`.
+The optional account flow never blocks local tasks or onboarding. Both native clients use the same authenticated `sync_personal` RPC. It compares mutation timestamps, includes deletion tombstones, and commits atomically under owner-only RLS. Sync is manual; realtime and team sharing remain outside C1.
 
-- المشروع: https://supabase.com/dashboard/project/nqrqvmvucfdtfmoaiqgp
-- API: https://nqrqvmvucfdtfmoaiqgp.supabase.co
-- السكيما طبقت وفحصت: profiles / projects / tasks، العلاقات، RLS owner-only، triggers.
-- ملف SupabaseConfig.plist الحقيقي محفوظ محليًا داخل موارد التطبيق، gitignored، ومربوط بـ Resources في Xcode. لا تنسخ المفتاح إلى التوثيق.
-- الجداول كلها فارغة قبل التسجيل وأول مزامنة.
+## Existing project
 
-## التجربة الآن
+- [Supabase dashboard](https://supabase.com/dashboard/project/nqrqvmvucfdtfmoaiqgp).
+- Initial schema and privileges were already deployed. Do not rerun `schema.sql` on this project.
+- Migration `20261007230659_personal_sync_rpc` deployed on 2026-10-08 (Cairo time).
+- Security advisor returned no findings after deployment.
+- Rollback-only fixtures verified stale-write protection, date-only transport, new/known tombstones, project detachment, atomic failure and account isolation. No test account, email or data persisted.
 
-1. افتح `ios/TaskManagement.xcodeproj` في Xcode وشغل ⌘R.
-2. افتح ☁️ بجوار الجرس → «حساب جديد» بالإيميل وكلمة السر.
-3. فعّل الإيميل من رسالة التأكيد، ثم سجّل دخول. تأكيد الإيميل مفعّل في Supabase.
-4. اضغط «مزامنة الآن»؛ النسخة الاحتياطية المحلية جزء من مسار أول مزامنة.
-5. راجع tasks في Table Editor؛ عدّل مهمة ثم زامن؛ احذف مهمة ثم زامن وتحقق من deleted_at.
+## Local client configuration
 
-لم يشغّل المساعد التطبيق أو ينشئ حساب اختبار؛ المزامنة من iOS ما زالت غير متحققة runtime.
+Only public client credentials belong in applications. Never use `service_role`, a secret key or a database password.
 
-## عند نسخ المشروع لجهاز آخر
+### iOS
 
-ملف الاتصال الحقيقي غير موجود في git. انسخه محليًا أو أنشئه من ملف المثال، ثم أعد توليد المشروع بـ XcodeGen ليضاف إلى Resources. `schema.sql` مخصص للتهيئة الأولى على مشروع جديد؛ لا تعِد تشغيله على هذا المشروع لأن السياسات والـtriggers موجودة بالفعل.
+Copy `ios/TaskManagement/Resources/SupabaseConfig.example.plist` to `SupabaseConfig.plist` in the same folder and set the project URL and public client key. The file is ignored by Git and is already referenced by the checked-in Xcode project. When regenerating with XcodeGen, keep the real file local before generation.
+
+### Android
+
+Copy `android/supabase.example.properties` to `android/supabase.properties`, set the URL and public client key, then rebuild. The real file is ignored by Git. Without configuration, local tasks still work and the account sheet explains that sync is unavailable in that build.
+
+## New backend only
+
+Run `docs/supabase/schema.sql` once on a new project, then `supabase/migrations/20261007230659_personal_sync_rpc.sql`. Enable email/password auth with email confirmation. Existing projects should apply the migration only after verifying their schema matches this repository.
+
+## Device acceptance
+
+Open the optional account screen, register using your own email, confirm the email, and sign in. Sync one device, then the second device under the same account. Verify edit/delete propagation and offline failure without local data loss. This real-account, two-device path remains pending; SQL verification is not a substitute.
+
+Before the first sync, each client saves an atomic JSON snapshot under its app-private Application Support/files `Backups` directory. A failed backup stops sync. The local data set binds to the first synced account; another account cannot upload it. Signing out retains local data. No account-switch/reset UI or export button is claimed.
+
+Android session tokens are encrypted with Android Keystore in no-backup storage. iOS uses the Supabase SDK's Keychain storage. Credentials are never logged. Android reconciles reminders after a successful merge; iOS repository observation does the same.

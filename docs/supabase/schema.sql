@@ -47,11 +47,12 @@ create table if not exists public.tasks (
 create index if not exists tasks_owner_updated_idx on public.tasks (owner_id, updated_at);
 create index if not exists projects_owner_updated_idx on public.projects (owner_id, updated_at);
 
--- 4) triggers: revision يتزايد وupdated_at يتحدث مع كل تعديل
+-- 4) revision يزيد مع الحفاظ على timestamp العميل لحسم LWW
 create or replace function public.bump_revision() returns trigger as $$
 begin
-  new.updated_at = now();
-  new.revision = coalesce(old.revision, 0) + 1;
+  if new.updated_at < old.updated_at then return old; end if;
+  new.created_at = old.created_at;
+  new.revision = old.revision + 1;
   return new;
 end;
 $$ language plpgsql set search_path = '';
@@ -97,3 +98,5 @@ grant select, insert, update, delete on public.profiles, public.projects, public
 -- دوال triggers داخلية، ليست عمليات API قابلة للاستدعاء من العميل.
 revoke execute on function public.bump_revision() from public, anon, authenticated;
 revoke execute on function public.handle_new_user() from public, anon, authenticated;
+
+-- بعد التهيئة الأولى طبّق supabase/migrations/20261007230659_personal_sync_rpc.sql.

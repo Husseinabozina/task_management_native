@@ -39,7 +39,7 @@ struct TaskEditorSheet: View {
       ScrollView {
         VStack(spacing: 12) {
           fieldCard(label: "عنوان المهمة") {
-            TextField("مثال: أسلّم التقرير", text: $title)
+            TextField("مثال: تسليم التقرير", text: $title)
               .font(AppTypography.bodyText)
           }
           fieldCard(label: "الوصف (اختياري)") {
@@ -50,8 +50,8 @@ struct TaskEditorSheet: View {
           fieldCard(label: "الحالة") {
             HStack(spacing: 8) {
               statusChip(.active, title: "مفتوحة")
-              statusChip(.inProgress, title: "شغالة عليها")
-              statusChip(.completed, title: "خلصت")
+              statusChip(.inProgress, title: "قيد التنفيذ")
+              statusChip(.completed, title: "مكتملة")
               Spacer()
             }
           }
@@ -141,7 +141,7 @@ struct TaskEditorSheet: View {
                 )
                 .font(AppTypography.bodyText)
                 .environment(\.locale, Locale(identifier: "ar_EG"))
-                Text("هيوصلك إشعار بنفسجي في المعاد ده 📬")
+                Text("ستتلقى إشعارًا في الموعد المحدد.")
                   .font(AppTypography.fieldLabel)
                   .foregroundStyle(Color.appTextSecondary)
               }
@@ -236,11 +236,11 @@ struct TaskEditorSheet: View {
     case .notDetermined:
       let granted = (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
       guard granted else {
-        errorMessage = "الإشعارات مرفوضة — من غيرها مينفعش تذكير."
+        errorMessage = "تعذّر تفعيل التذكير دون السماح بالإشعارات."
         return
       }
     default:
-      errorMessage = "الإشعارات مقفولة من إعدادات النظام — فعّلها للتطبيق عشان التذكير يشتغل."
+      errorMessage = "الإشعارات معطّلة. فعّلها للتطبيق من إعدادات النظام لاستخدام التذكيرات."
       return
     }
     hasReminder = true
@@ -322,7 +322,7 @@ struct TaskEditorSheet: View {
     } catch let error as RepositoryError {
       errorMessage = error.readableDescription
     } catch {
-      errorMessage = "حصلت مشكلة غير متوقعة أثناء الحفظ."
+      errorMessage = "حدثت مشكلة غير متوقعة أثناء الحفظ."
     }
   }
 
@@ -345,9 +345,9 @@ struct TaskEditorSheet: View {
 
   private static func priorityLabel(for value: TaskPriority) -> String {
     switch value {
-    case .low: return "هادية"
+    case .low: return "منخفضة"
     case .normal: return "عادية"
-    case .high: return "مستعجلة"
+    case .high: return "عالية"
     }
   }
 }

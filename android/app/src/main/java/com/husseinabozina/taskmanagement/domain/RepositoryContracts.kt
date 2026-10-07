@@ -1,6 +1,8 @@
 package com.husseinabozina.taskmanagement.domain
 
 import kotlinx.coroutines.flow.Flow
+import java.time.Instant
+import java.util.UUID
 
 /**
  * عقود المخزن — نفس عقود iOS (docs/architecture/DATA_CONTRACTS.md).
@@ -39,6 +41,6 @@ interface ProjectRepository {
 /** أخطاء المخزن — رسائل عربية مفهومة (نفس iOS). */
 sealed class RepositoryError(message: String) : Exception(message) {
     class ValidationFailed(val reason: String) : RepositoryError(reason)
-    data object NotFound : RepositoryError("العنصر ده مش موجود.")
-    class StoreFailure(cause: String) : RepositoryError("حصلت مشكلة في الحفظ: $cause")
+    data object NotFound : RepositoryError("هذا العنصر غير موجود.")
+    class StoreFailure(cause: String) : RepositoryError("حدثت مشكلة في الحفظ: $cause")
 }

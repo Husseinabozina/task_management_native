@@ -35,7 +35,7 @@ final class AuthSession {
 
   func signIn(email: String, password: String) async {
     guard !email.isEmpty, !password.isEmpty else {
-      errorMessage = "الإيميل وكلمة السر مطلوبين."
+      errorMessage = "البريد الإلكتروني وكلمة المرور مطلوبان."
       return
     }
     isLoading = true
@@ -50,7 +50,7 @@ final class AuthSession {
 
   func signUp(email: String, password: String) async {
     guard !email.isEmpty, password.count >= 6 else {
-      errorMessage = "الإيميل مطلوب وكلمة السر 6 حروف على الأقل."
+      errorMessage = "أدخل البريد الإلكتروني وكلمة مرور من 6 أحرف على الأقل."
       return
     }
     isLoading = true
@@ -62,7 +62,7 @@ final class AuthSession {
         errorMessage = nil
       } else {
         // Supabase الافتراضي يطلب تأكيد الإيميل قبل الدخول.
-        errorMessage = "اتعمل الحساب ✅ — فعّل الإيميل من رسالة التأكيد وبعدها سجّل دخول."
+        errorMessage = "تم إنشاء الحساب. أكّد بريدك الإلكتروني عبر رسالة التأكيد، ثم سجّل الدخول."
       }
     } catch {
       errorMessage = Self.readable(error)
@@ -77,12 +77,12 @@ final class AuthSession {
 
   static func readable(_ error: Error) -> String {
     let raw = error.localizedDescription
-    if raw.contains("Invalid login credentials") { return "الإيميل أو كلمة السر غلط." }
-    if raw.contains("already registered") { return "الإيميل ده مسجل قبل كده — سجّل دخول." }
-    if raw.contains("Email not confirmed") { return "فعّل الإيميل الأول من رسالة التأكيد." }
+    if raw.contains("Invalid login credentials") { return "البريد الإلكتروني أو كلمة المرور غير صحيحة." }
+    if raw.contains("already registered") { return "هذا البريد الإلكتروني مسجّل بالفعل. سجّل الدخول." }
+    if raw.contains("Email not confirmed") { return "أكّد بريدك الإلكتروني أولًا عبر رسالة التأكيد." }
     if raw.contains("Internet connection") || raw.contains("network") {
-      return "مفيش اتصال إنترنت."
+      return "لا يوجد اتصال بالإنترنت."
     }
-    return "حصلت مشكلة: \(raw)"
+    return "حدثت مشكلة: \(raw)"
   }
 }

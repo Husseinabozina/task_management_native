@@ -37,21 +37,11 @@ struct AccountSheet: View {
   /// الحالة الصادقة لما الإعدادات ناقصة — خطوات واضحة لا رسالة غامضة.
   private var setupNeededView: some View {
     VStack(alignment: .leading, spacing: 14) {
-      Label("السحابة مش مضبوطة على النسخة دي", systemImage: "cloud.slash")
+      Label("المزامنة السحابية غير مهيّأة في هذه النسخة", systemImage: "cloud.slash")
         .font(AppTypography.screenTitle)
         .foregroundStyle(Color.appTextPrimary)
-      VStack(alignment: .leading, spacing: 10) {
-        Self.step("1", "اعمل مشروع على supabase.com (بلان مجاني)")
-        Self.step("2", "شغّل ملف docs/supabase/schema.sql في SQL Editor بتاع المشروع")
-        Self.step("3", "انسخ Project URL و anon key من Settings ← API")
-        Self.step(
-          "4",
-          "انسخ SupabaseConfig.example.plist وسمّه SupabaseConfig.plist واملأ القيمتين، وبعدها ⌘R")
-      }
-      .font(AppTypography.bodyText)
-      .foregroundStyle(Color.appTextPrimary)
-      Text("التفاصيل كاملة في docs/supabase/SETUP.md جوه المشروع.")
-        .font(AppTypography.metadata)
+      Text("تظل مهامك ومشاريعك محفوظة على هذا الجهاز. ستتاح المزامنة عند تهيئتها في نسخة التطبيق.")
+        .font(AppTypography.bodyText)
         .foregroundStyle(Color.appTextSecondary)
       Spacer()
     }
@@ -59,18 +49,7 @@ struct AccountSheet: View {
     .background(Color.appBackground)
   }
 
-  private static func step(_ number: String, _ text: String) -> some View {
-    HStack(alignment: .top, spacing: 10) {
-      Text(number)
-        .font(AppTypography.numeral)
-        .foregroundStyle(Color.white)
-        .frame(width: 22, height: 22)
-        .background(Circle().fill(Color.appPrimary))
-      Text(text)
-        .font(AppTypography.bodyText)
-        .foregroundStyle(Color.appTextPrimary)
-    }
-  }
+
 }
 
 /// نموذج الدخول/إنشاء الحساب.
@@ -109,15 +88,15 @@ struct AuthFormView: View {
           }
           Spacer()
         }
-        fieldCard("الإيميل", text: $email)
-        fieldCard("كلمة السر", text: $password, secure: true)
+        fieldCard("البريد الإلكتروني", text: $email)
+        fieldCard("كلمة المرور", text: $password, secure: true)
         if let message = auth.errorMessage {
           Text(message)
             .font(AppTypography.metadata)
             .foregroundStyle(Color.appError)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        PrimaryButton(title: auth.isLoading ? "لحظة…" : mode.rawValue) {
+        PrimaryButton(title: auth.isLoading ? "يرجى الانتظار…" : mode.rawValue) {
           Task {
             if mode == .signIn {
               await auth.signIn(email: email, password: password)
@@ -183,7 +162,7 @@ struct SignedInView: View {
                 .font(AppTypography.metadata)
                 .foregroundStyle(Color.appTextSecondary)
             } else {
-              Text("لسه متزامنتش — أول مزامنة هتعمل نسخة احتياطية لبياناتك")
+              Text("لم تُجرَ مزامنة بعد. ستُحفظ نسخة احتياطية من بياناتك قبل أول مزامنة.")
                 .font(AppTypography.metadata)
                 .foregroundStyle(Color.appTextSecondary)
             }
@@ -203,14 +182,14 @@ struct SignedInView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
 
-        PrimaryButton(title: sync.isSyncing ? "جاري المزامنة…" : "مزامنة الآن") {
+        PrimaryButton(title: sync.isSyncing ? "جارٍ المزامنة…" : "مزامنة الآن") {
           Task { await sync.syncNow() }
         }
         .opacity(sync.isSyncing ? 0.6 : 1)
         .disabled(sync.isSyncing)
 
         Text(
-          "بياناتك محفوظة محليًا الأول — المزامنة بتنقلها للسحابة بمعرف موثوق، وأول مزامنة بتعمل نسخة احتياطية تلقائيًا."
+          "تُحفظ بياناتك محليًا وتُزامن مع حسابك في السحابة. تُنشأ نسخة احتياطية تلقائيًا قبل أول مزامنة."
         )
         .font(AppTypography.metadata)
         .foregroundStyle(Color.appTextSecondary)

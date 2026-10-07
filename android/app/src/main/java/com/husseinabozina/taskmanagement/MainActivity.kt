@@ -1,86 +1,63 @@
 package com.husseinabozina.taskmanagement
 
 import android.os.Bundle
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.husseinabozina.taskmanagement.ui.TaskApp
+import com.husseinabozina.taskmanagement.ui.TaskAppViewModel
 import com.husseinabozina.taskmanagement.ui.theme.TaskManagementTheme
+import com.husseinabozina.taskmanagement.reminders.ReminderScheduler
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-/**
- * نقطة دخول نسخة أندرويد — مسار D1 المرحلة A0.
- * الهيكل والعقود مشتركة مع iOS وفق docs/architecture/DATA_CONTRACTS.md.
- */
 class MainActivity : ComponentActivity() {
+    private lateinit var model: TaskAppViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            TaskManagementTheme {
-                HomeStubScreen()
-            }
-        }
-    }
-}
-
-/// حالة انتقالية صادقة لمسار A0 — لا أزرار ولا بيانات وهمية.
-@Composable
-private fun HomeStubScreen() {
-    Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(146.dp)
-                    .padding(horizontal = 22.dp, vertical = 12.dp)
-                    .background(Color(0xFF5F33E1), RoundedCornerShape(24.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        "مهامي — أندرويد",
-                        color = Color.White,
-                        fontSize = 19.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        "المسار بدأ: A0 هيكل المشروع — الطبقات جاية وفق نفس العقود",
-                        color = Color.White.copy(alpha = 0.85f),
-                        fontSize = 13.sp
-                    )
+        model = ViewModelProvider(this)[TaskAppViewModel::class.java]
+        importDemoIfRequested(intent)
+        openReminderIfRequested(intent)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    model.refreshDay()
+                    delay(60_000)
                 }
             }
-            Text(
-                "نفس عقود المنتج من docs/architecture/DATA_CONTRACTS.md ستُنفذ هنا: المهام، المشاريع، التذكيرات، والمزامنة عبر Supabase.",
-                modifier = Modifier.padding(22.dp),
-                fontSize = 14.sp,
-                color = Color(0xFF6E6A7C)
-            )
+        }
+        setContent { TaskManagementTheme { TaskApp(model) } }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        importDemoIfRequested(intent)
+        openReminderIfRequested(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::model.isInitialized) model.refreshReminders()
+    }
+
+    private fun openReminderIfRequested(intent: Intent) {
+        intent.getStringExtra(ReminderScheduler.TASK_ID)?.let {
+            intent.removeExtra(ReminderScheduler.TASK_ID)
+            model.openNotificationTask(it)
+        }
+    }
+
+    private fun importDemoIfRequested(intent: Intent) {
+        if (intent.getBooleanExtra("tmPopulateDemo", false)) {
+            intent.removeExtra("tmPopulateDemo")
+            model.importPresentationData()
         }
     }
 }

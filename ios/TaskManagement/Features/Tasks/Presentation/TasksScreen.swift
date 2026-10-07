@@ -68,12 +68,12 @@ struct TasksScreen: View {
         viewModel.query.day != .all || viewModel.query.status != .any
         || viewModel.query.priority != .any || !viewModel.searchText.isEmpty
       ContentUnavailableView(
-        hasFilters ? "مفيش نتايج بالفلتر ده" : "مفيش مهام لسه",
+        hasFilters ? "لا توجد نتائج مطابقة" : "لا توجد مهام بعد",
         systemImage: hasFilters ? "line.3.horizontal.decrease.circle" : "checklist",
         description: Text(
           hasFilters
-            ? "جرّب تغيّر اليوم أو الحالة، أو ارجع لـ«الكل»."
-            : "ابدأ من خانة الإضافة السريعة اللي تحت، أو من زر ＋."
+            ? "غيّر اليوم أو الحالة، أو اختر «الكل»."
+            : "أضف مهمتك الأولى من حقل الإضافة السريعة أدناه أو من زر ＋."
         )
       )
       Spacer()
@@ -107,8 +107,8 @@ struct TasksScreen: View {
         .font(.system(size: 14, weight: .semibold))
         .foregroundStyle(Color.appTextSecondary)
       TextField(
-        "دوّر على مهمة…", text: $viewModel.searchText,
-        prompt: Text("دوّر على مهمة…").foregroundStyle(Color.appTextSecondary)
+        "ابحث عن مهمة…", text: $viewModel.searchText,
+        prompt: Text("ابحث عن مهمة…").foregroundStyle(Color.appTextSecondary)
       )
       .font(AppTypography.bodyText)
       .textInputAutocapitalization(.never)
@@ -127,16 +127,16 @@ struct TasksScreen: View {
     let title: String = {
       switch current {
       case .any: return "الأولوية"
-      case .low: return "هادية"
+      case .low: return "منخفضة"
       case .normal: return "عادية"
-      case .high: return "مستعجلة"
+      case .high: return "عالية"
       }
     }()
     return Menu {
       Button("كل الأولويات") { viewModel.selectPriority(.any) }
-      Button("مستعجلة") { viewModel.selectPriority(.high) }
+      Button("عالية") { viewModel.selectPriority(.high) }
       Button("عادية") { viewModel.selectPriority(.normal) }
-      Button("هادية") { viewModel.selectPriority(.low) }
+      Button("منخفضة") { viewModel.selectPriority(.low) }
     } label: {
       HStack(spacing: 4) {
         Text(title)
@@ -294,7 +294,7 @@ private struct StatusChips: View {
     HStack(spacing: 8) {
       chip(title: "الكل", value: .any)
       chip(title: "مفتوحة", value: .active)
-      chip(title: "شغالة", value: .inProgress)
+      chip(title: "قيد التنفيذ", value: .inProgress)
       chip(title: "مكتملة", value: .completed)
       Spacer()
     }

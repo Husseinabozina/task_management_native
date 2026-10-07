@@ -15,14 +15,23 @@ interface TaskDao {
     @Upsert
     suspend fun upsertAll(entities: List<TaskEntity>)
 
-    @Query("SELECT * FROM tasks WHERE deletedAt IS NULL")
+    @Query("SELECT * FROM tasks")
     fun observeAll(): Flow<List<TaskEntity>>
+
+    @Query("SELECT * FROM tasks")
+    suspend fun all(): List<TaskEntity>
 
     @Query("SELECT * FROM tasks WHERE id = :id")
     suspend fun byId(id: UUID): TaskEntity?
 
     @Query("DELETE FROM tasks WHERE id = :id")
     suspend fun deleteById(id: UUID)
+
+    @Query("UPDATE tasks SET projectId = NULL, updatedAt = :updatedAt WHERE projectId = :projectId")
+    suspend fun detachProject(projectId: UUID, updatedAt: java.time.Instant)
+
+    @Query("UPDATE tasks SET projectId = NULL, updatedAt = CASE WHEN updatedAt < :updatedAt THEN :updatedAt ELSE updatedAt END WHERE projectId = :projectId")
+    suspend fun detachCloudProject(projectId: UUID, updatedAt: java.time.Instant)
 }
 
 @Dao
@@ -33,8 +42,11 @@ interface ProjectDao {
     @Upsert
     suspend fun upsertAll(entities: List<ProjectEntity>)
 
-    @Query("SELECT * FROM projects WHERE deletedAt IS NULL ORDER BY created_at")
+    @Query("SELECT * FROM projects ORDER BY createdAt, id")
     fun observeAll(): Flow<List<ProjectEntity>>
+
+    @Query("SELECT * FROM projects")
+    suspend fun all(): List<ProjectEntity>
 
     @Query("SELECT * FROM projects WHERE id = :id")
     suspend fun byId(id: UUID): ProjectEntity?
@@ -54,4 +66,7 @@ interface TombstoneDao {
 
     @Query("DELETE FROM tombstones WHERE key IN (:keys)")
     suspend fun deleteByKeys(keys: List<String>)
+
+    @Query("DELETE FROM tombstones WHERE key = :key AND deletedAt = :deletedAt")
+    suspend fun acknowledge(key: String, deletedAt: java.time.Instant)
 }

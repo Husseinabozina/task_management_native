@@ -6,11 +6,15 @@ import UserNotifications
 struct TaskManagementApp: App {
   @State private var session = AppSession()
   private let bootstrap = AppDependencies.bootstrap()
-  @State private var notificationDelegate = NotificationDelegate()
+  @State private var notificationDelegate: NotificationDelegate
 
   init() {
     // عرض الإشعار حتى والتطبيق مفتوح في المقدمة.
-    UNUserNotificationCenter.current().delegate = notificationDelegate
+    let state = AppSession()
+    _session = State(initialValue: state)
+    let delegate = NotificationDelegate { id in state.notificationTaskId = id }
+    _notificationDelegate = State(initialValue: delegate)
+    UNUserNotificationCenter.current().delegate = delegate
   }
 
   var body: some Scene {

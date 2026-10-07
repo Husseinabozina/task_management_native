@@ -64,7 +64,7 @@ struct ProjectsScreen: View {
       isPresented: Binding(get: { deleteTarget != nil }, set: { if !$0 { deleteTarget = nil } }),
       titleVisibility: .visible
     ) {
-      Button("حذف المشروع — مهامه تنتقل لـ«بدون مشروع»", role: .destructive) {
+      Button("حذف المشروع — نقل مهامه إلى «بدون مشروع»", role: .destructive) {
         guard let target = deleteTarget else { return }
         Task {
           actionMessage = await viewModel?.deleteProject(target)
@@ -73,7 +73,7 @@ struct ProjectsScreen: View {
       }
       Button("إلغاء", role: .cancel) { deleteTarget = nil }
     } message: {
-      Text("المهام نفسها مش هتتحذف — هتفضل موجودة بدون مشروع.")
+      Text("ستبقى المهام محفوظة ضمن «بدون مشروع».")
     }
     .navigationDestination(item: $openedProject) { project in
       TasksScreen(repository: repository, projectId: project.id)
@@ -87,7 +87,7 @@ struct ProjectsScreen: View {
     guard ProcessInfo.processInfo.arguments.contains("-tmSeedDemoProject") else { return }
     guard let viewModel, viewModel.projects.isEmpty else { return }
     _ = await viewModel.createProject(
-      name: "مشروع تجربة — امسحني", emoji: "🚀", colorKey: ProjectPalette.purple.rawValue)
+      name: "مشروع تجريبي — قابل للحذف", emoji: "🚀", colorKey: ProjectPalette.purple.rawValue)
   }
 
   @ViewBuilder
@@ -99,9 +99,9 @@ struct ProjectsScreen: View {
     } else if let projects = viewModel?.projects, projects.isEmpty {
       Spacer()
       ContentUnavailableView(
-        "مفيش مشاريع لسه",
+        "لا توجد مشاريع بعد",
         systemImage: "folder.badge.plus",
-        description: Text("اعمل أول مشروع واربط بيه مهامك — من زر «مشروع جديد» فوق.")
+        description: Text("أنشئ مشروعك الأول لتنظيم مهامك من زر «مشروع جديد» أعلاه.")
       )
       Spacer()
     } else if let projects = viewModel?.projects {

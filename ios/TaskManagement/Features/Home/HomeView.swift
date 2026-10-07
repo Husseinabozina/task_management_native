@@ -89,8 +89,8 @@ struct HomeView: View {
       bell
         .accessibilityLabel(
           (viewModel?.overdueCount ?? 0) > 0
-            ? "عندك \(viewModel?.overdueCount ?? 0) مهام متأخرة"
-            : "مفيش مهام متأخرة"
+            ? "لديك \(viewModel?.overdueCount ?? 0) مهام متأخرة"
+            : "لا توجد مهام متأخرة"
         )
     }
   }
@@ -123,7 +123,7 @@ struct HomeView: View {
           .foregroundStyle(Color.white)
           .multilineTextAlignment(.leading)
         Button(action: onOpenTasks) {
-          Text("شوف مهامك")
+          Text("عرض مهامك")
             .font(AppTypography.chipSelected)
             .foregroundStyle(Color.appPrimary)
             .padding(.horizontal, 16)
@@ -148,11 +148,11 @@ struct HomeView: View {
   }
 
   private func heroTitle(total: Int, completed: Int) -> String {
-    guard total > 0 else { return "مفيش مهام النهارده — ابدأ بإضافة أول مهمة من زر ＋" }
+    guard total > 0 else { return "لا توجد مهام اليوم. أضف مهمتك الأولى من زر ＋" }
     if completed == total {
-      return "مبروك! خلّصت كل مهام النهارده 🎉"
+      return "أحسنت! أنجزت جميع مهام اليوم 🎉"
     }
-    return "مهام النهارده: خلّصت \(completed) من \(total)"
+    return "مهام اليوم: أنجزت \(completed) من \(total)"
   }
 
   private func donut(progress: Double) -> some View {
@@ -170,7 +170,7 @@ struct HomeView: View {
         .environment(\.layoutDirection, .leftToRight)
     }
     .frame(width: 76, height: 76)
-    .accessibilityLabel("تقدم مهام النهارده \(Int((progress * 100).rounded())) بالمئة")
+    .accessibilityLabel("تقدم مهام اليوم \(Int((progress * 100).rounded())) بالمئة")
   }
 
   // MARK: - الكارتان البارزتان (أهم مشروعين نشاطًا)
@@ -182,7 +182,7 @@ struct HomeView: View {
   private var featuredSection: some View {
     VStack(alignment: .leading, spacing: 12) {
       HStack(spacing: 8) {
-        Text("أهم المشاريع شغالة")
+        Text("أبرز المشاريع النشطة")
           .font(AppTypography.sectionTitle)
           .foregroundStyle(Color.appTextPrimary)
         countBadge(featured.count)
@@ -210,7 +210,7 @@ struct HomeView: View {
   private var todaySection: some View {
     VStack(alignment: .leading, spacing: 12) {
       HStack(spacing: 8) {
-        Text("مهام النهارده")
+        Text("مهام اليوم")
           .font(AppTypography.sectionTitle)
           .foregroundStyle(Color.appTextPrimary)
         Spacer()

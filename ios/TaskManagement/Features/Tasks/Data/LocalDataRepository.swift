@@ -14,6 +14,12 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
     self.container = container
   }
 
+  func notificationContext(id: UUID) throws -> (task: TaskItem, project: ProjectItem?) {
+    let task = TaskMapper.toDomain(try fetchTaskRow(id: id))
+    let project = try task.projectId.flatMap { id in try fetchProjectRow(id: id).map(TaskMapper.toDomain) }
+    return (task, project)
+  }
+
   // MARK: - TaskRepository
 
   func observeTasks(_ query: TaskQuery) -> AsyncStream<[TaskItem]> {
@@ -216,103 +222,106 @@ final class LocalDataRepository: TaskRepository, ProjectRepository {
     return rows.map(TaskMapper.toDomain)
   }
 
-  // MARK: - مزامنة السحابة (C1 — full snapshot LWW بخطوة tombstones)
+  // MARK: - Personal cloud sync (atomic LWW merge)
 
-  /// كل الصفوف المحلية + آثار الحذف غير المدفوعة بعد.
-  func exportForSync() -> (
+  struct SyncDeletion: Codable {
+    let id: UUID
+    let deleted_at: Date
+  }
+
+  func exportForSync() throws -> (
     tasks: [TaskItem], projects: [ProjectItem],
-    taskTombstones: [UUID], projectTombstones: [UUID]
+    taskTombstones: [SyncDeletion], projectTombstones: [SyncDeletion]
   ) {
-    let tasksDescriptor = FetchDescriptor<PersistedTask>()
-    let tasks = ((try? container.mainContext.fetch(tasksDescriptor)) ?? []).map(TaskMapper.toDomain)
-    let projectsDescriptor = FetchDescriptor<PersistedProject>()
-    let projects = ((try? container.mainContext.fetch(projectsDescriptor)) ?? []).map(
-      TaskMapper.toDomain)
-    let tombstoneDescriptor = FetchDescriptor<PersistedTombstone>()
-    let tombstones = (try? container.mainContext.fetch(tombstoneDescriptor)) ?? []
+    let context = container.mainContext
+    let tasks = try context.fetch(FetchDescriptor<PersistedTask>()).map(TaskMapper.toDomain)
+    let projects = try context.fetch(FetchDescriptor<PersistedProject>()).map(TaskMapper.toDomain)
+    let tombstones = try context.fetch(FetchDescriptor<PersistedTombstone>())
     return (
-      tasks: tasks,
-      projects: projects,
-      taskTombstones: tombstones.filter { $0.kind == "task" }.map(\.rowId),
-      projectTombstones: tombstones.filter { $0.kind == "project" }.map(\.rowId)
+      tasks, projects,
+      tombstones.filter { $0.kind == "task" }.map { SyncDeletion(id: $0.rowId, deleted_at: $0.deletedAt) },
+      tombstones.filter { $0.kind == "project" }.map { SyncDeletion(id: $0.rowId, deleted_at: $0.deletedAt) }
     )
   }
 
-  func clearTombstones(taskIds: [UUID], projectIds: [UUID]) {
-    let taskKeys = Set(taskIds.map { "task:\($0.uuidString)" })
-    let projectKeys = Set(projectIds.map { "project:\($0.uuidString)" })
-    let descriptor = FetchDescriptor<PersistedTombstone>()
-    guard let rows = try? container.mainContext.fetch(descriptor) else { return }
-    for row in rows where taskKeys.contains(row.key) || projectKeys.contains(row.key) {
-      container.mainContext.delete(row)
-    }
-    try? save()
-  }
-
-  /// تطبيق صفوف السحابة محليًا بقاعدة LWW: الأحدث updated_at يفوز، والجديد يُضاف.
-  func applyCloudUpserts(projects: [ProjectItem], tasks: [TaskItem]) {
-    for incoming in projects {
-      let targetId = incoming.id
-      let descriptor = FetchDescriptor<PersistedProject>(
-        predicate: #Predicate { $0.id == targetId })
-      if let row = try? container.mainContext.fetch(descriptor).first {
-        guard incoming.updatedAt > row.updatedAt else { continue }
-        row.name = incoming.name
-        row.emoji = incoming.emoji
-        row.colorKey = incoming.colorKey
-        row.createdAt = incoming.createdAt
-      } else {
-        container.mainContext.insert(
-          PersistedProject(
-            id: incoming.id, name: incoming.name, emoji: incoming.emoji,
-            colorKey: incoming.colorKey, createdAt: incoming.createdAt))
+  /// A network round trip may overlap local edits. Compare again inside the local transaction.
+  func applyCloudSnapshot(_ response: CloudSnapshot, ownerId: UUID) throws {
+    let context = container.mainContext
+    try context.transaction {
+      let pending = try context.fetch(FetchDescriptor<PersistedTombstone>())
+      func deletions(_ kind: String, _ id: UUID) -> [PersistedTombstone] {
+        pending.filter { $0.kind == kind && $0.rowId == id }
       }
-    }
-    for incoming in tasks {
-      let targetId = incoming.id
-      let descriptor = FetchDescriptor<PersistedTask>(
-        predicate: #Predicate { $0.id == targetId })
-      if let row = try? container.mainContext.fetch(descriptor).first {
-        guard incoming.updatedAt > row.updatedAt else { continue }
-        row.title = incoming.title
-        row.details = incoming.details
-        row.statusRaw = incoming.status.rawValue
-        row.priorityRaw = incoming.priority.rawValue
-        row.isPinned = incoming.isPinned
-        row.reminderDate = incoming.reminderDate
-        row.dueDayDate = incoming.dueDay?.date
-        row.projectId = incoming.projectId
-        row.createdAt = incoming.createdAt
-        row.completedAt = incoming.completedAt
-      } else {
-        container.mainContext.insert(
-          PersistedTask(
-            id: incoming.id, title: incoming.title, details: incoming.details,
-            statusRaw: incoming.status.rawValue, priorityRaw: incoming.priority.rawValue,
-            isPinned: incoming.isPinned, dueDayDate: incoming.dueDay?.date,
-            projectId: incoming.projectId, createdAt: incoming.createdAt,
-            updatedAt: incoming.updatedAt, completedAt: incoming.completedAt,
-            reminderDate: incoming.reminderDate))
+      func mayApply(_ rows: [PersistedTombstone], updated: Date, deleted: Bool) -> Bool {
+        !rows.contains { $0.deletedAt > updated || (!deleted && $0.deletedAt == updated) }
       }
-    }
-    try? save()
-  }
-
-  /// حذف محلي لصفوف اتحذفوا من السحابة (tombstone من جهة تانية).
-  func applyCloudDeletes(taskIds: [UUID], projectIds: [UUID]) {
-    for id in projectIds {
-      let descriptor = FetchDescriptor<PersistedProject>(predicate: #Predicate { $0.id == id })
-      if let rows = try? container.mainContext.fetch(descriptor) {
-        for row in rows { container.mainContext.delete(row) }
+      func acknowledge(_ rows: [PersistedTombstone], through updated: Date) {
+        for row in rows where row.deletedAt <= updated { context.delete(row) }
       }
-    }
-    for id in taskIds {
-      let descriptor = FetchDescriptor<PersistedTask>(predicate: #Predicate { $0.id == id })
-      if let rows = try? container.mainContext.fetch(descriptor) {
-        for row in rows { container.mainContext.delete(row) }
+      for incoming in response.projects {
+        guard incoming.owner_id == ownerId else { throw RepositoryError.storeFailure("Invalid cloud owner") }
+        let id = incoming.id
+        let row = try context.fetch(FetchDescriptor<PersistedProject>(predicate: #Predicate { $0.id == id })).first
+        let tombstones = deletions("project", id)
+        guard mayApply(tombstones, updated: incoming.updated_at, deleted: incoming.deleted_at != nil) else { continue }
+        if row == nil || row!.updatedAt <= incoming.updated_at {
+          if incoming.deleted_at != nil {
+            if let row { context.delete(row) }
+            for task in try context.fetch(FetchDescriptor<PersistedTask>(predicate: #Predicate { $0.projectId == id })) {
+              task.projectId = nil
+              task.updatedAt = max(task.updatedAt, incoming.updated_at)
+            }
+          } else if let row {
+            row.name = incoming.name
+            row.emoji = incoming.emoji
+            row.colorKey = incoming.color_key
+            row.createdAt = incoming.created_at
+            row.updatedAt = incoming.updated_at
+          } else {
+            context.insert(PersistedProject(id: id, name: incoming.name, emoji: incoming.emoji,
+              colorKey: incoming.color_key, createdAt: incoming.created_at, updatedAt: incoming.updated_at))
+          }
+        }
+        acknowledge(tombstones, through: incoming.updated_at)
       }
+      let liveProjects = Set(try context.fetch(FetchDescriptor<PersistedProject>()).map(\.id))
+      for incoming in response.tasks {
+        guard incoming.owner_id == ownerId else { throw RepositoryError.storeFailure("Invalid cloud owner") }
+        let id = incoming.id
+        let row = try context.fetch(FetchDescriptor<PersistedTask>(predicate: #Predicate { $0.id == id })).first
+        let tombstones = deletions("task", id)
+        guard mayApply(tombstones, updated: incoming.updated_at, deleted: incoming.deleted_at != nil) else { continue }
+        if row == nil || row!.updatedAt <= incoming.updated_at {
+          if incoming.deleted_at != nil {
+            if let row { context.delete(row) }
+          } else {
+            let item = try incoming.taskItem()
+            let projectId = item.projectId.flatMap { liveProjects.contains($0) ? $0 : nil }
+            if let row {
+              row.title = item.title
+              row.details = item.details
+              row.statusRaw = item.status.rawValue
+              row.priorityRaw = item.priority.rawValue
+              row.isPinned = item.isPinned
+              row.reminderDate = item.reminderDate
+              row.dueDayDate = item.dueDay?.date
+              row.projectId = projectId
+              row.createdAt = item.createdAt
+              row.updatedAt = item.updatedAt
+              row.completedAt = item.completedAt
+            } else {
+              context.insert(PersistedTask(id: id, title: item.title, details: item.details,
+                statusRaw: item.status.rawValue, priorityRaw: item.priority.rawValue,
+                isPinned: item.isPinned, dueDayDate: item.dueDay?.date, projectId: projectId,
+                createdAt: item.createdAt, updatedAt: item.updatedAt, completedAt: item.completedAt,
+                reminderDate: item.reminderDate))
+            }
+          }
+        }
+        acknowledge(tombstones, through: incoming.updated_at)
+      }
+      try context.save()
     }
-    try? save()
     notifyChanged()
   }
 

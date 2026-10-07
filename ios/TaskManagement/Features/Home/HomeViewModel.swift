@@ -78,7 +78,7 @@ final class HomeViewModel {
     } catch let error as RepositoryError {
       return error.readableDescription
     } catch {
-      return "حصلت مشكلة غير متوقعة أثناء الحفظ."
+      return "حدثت مشكلة غير متوقعة أثناء الحفظ."
     }
   }
 

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// شاشة البداية «يلا نبدأ» — تصميم فيجما 101:100 حرفيًا (فقاعات متدرجة + توضيح + زر primary بتوهج).
+/// شاشة البداية «لنبدأ» — تخطيط فيجما 101:100 مع صورة تنظيم مهام جديدة ونصوص فصحى (قرار D26).
 /// تظهر لأول تشغيل فقط ثم تفتح الرئيسية مباشرة (قرار D8 + SCREEN_PLAN).
 struct EntryScreen: View {
   @Environment(AppSession.self) private var session
@@ -12,24 +12,24 @@ struct EntryScreen: View {
         DecorativeBlobs(canvas: geo.size)
         VStack(spacing: 0) {
           Spacer()
-          Image("img_illustration_main")
+          Image("onboarding_productivity")
             .resizable()
             .scaledToFit()
             .frame(maxWidth: 200)
             .accessibilityHidden(true)
-          Text("إدارة المهام\nوقائمة مهامك")
+          Text("نظّم يومك\nوأنجز مهامك")
             .font(AppTypography.heroTitle)
             .foregroundStyle(Color.appTextPrimary)
             .multilineTextAlignment(.center)
             .padding(.top, 28)
-          Text("أداة إنتاجية مصممة تساعدك تنظّم مهامك ومشاريعك كلها في مكان واحد!")
+          Text("نظّم مهامك ومشاريعك في مكان واحد، واجعل كل يوم خطوة نحو أهدافك.")
             .font(AppTypography.bodyText)
             .foregroundStyle(Color.appTextSecondary)
             .multilineTextAlignment(.center)
             .padding(.top, 16)
             .padding(.horizontal, 36)
           Spacer()
-          PrimaryButton(title: "يلا نبدأ") {
+          PrimaryButton(title: "لنبدأ") {
             session.completeOnboarding()
           }
           .padding(.horizontal, Metrics.screenPadding)

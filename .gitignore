@@ -22,3 +22,6 @@ netlify.toml
 
 # Supabase — الإعدادات الحقيقية لا تُرفع
 ios/TaskManagement/Resources/SupabaseConfig.plist
+android/supabase.properties
+android/.kotlin/
+supabase/.temp/

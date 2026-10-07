@@ -57,16 +57,16 @@ struct TaskDetailSheet: View {
         }
       }
       .confirmationDialog(
-        "تحب تحذف المهمة؟",
+        "هل تريد حذف المهمة؟",
         isPresented: $showDeleteConfirmation,
         titleVisibility: .visible
       ) {
-        Button("حذف — مش هترجع تاني", role: .destructive) {
+        Button("حذف نهائي", role: .destructive) {
           delete()
         }
         Button("إلغاء", role: .cancel) {}
       } message: {
-        Text("«\(item.title)» هتتمسح نهائيًا.")
+        Text("«\(item.title)» ستُحذف نهائيًا.")
       }
     }
     .presentationDetents([.large])
@@ -156,7 +156,7 @@ struct TaskDetailSheet: View {
       metadataRow(label: "أُنشئت", value: Self.dateLabel(for: item.createdAt))
       metadataRow(label: "آخر تحديث", value: Self.dateLabel(for: item.updatedAt))
       if let completedAt = item.completedAt {
-        metadataRow(label: "اِتّمّت", value: Self.dateLabel(for: completedAt))
+        metadataRow(label: "أُنجزت", value: Self.dateLabel(for: completedAt))
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
@@ -193,7 +193,7 @@ struct TaskDetailSheet: View {
     } catch let error as RepositoryError {
       errorMessage = error.readableDescription
     } catch {
-      errorMessage = "حصلت مشكلة غير متوقعة أثناء الحذف."
+      errorMessage = "حدثت مشكلة غير متوقعة أثناء الحذف."
     }
   }
 
@@ -214,9 +214,9 @@ struct TaskDetailSheet: View {
 
   private static func priorityLabel(for value: TaskPriority) -> String {
     switch value {
-    case .low: return "هادية"
+    case .low: return "منخفضة"
     case .normal: return "عادية"
-    case .high: return "مستعجلة"
+    case .high: return "عالية"
     }
   }
 

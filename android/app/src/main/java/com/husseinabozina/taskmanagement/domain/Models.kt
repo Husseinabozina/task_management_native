@@ -21,19 +21,17 @@ enum class TaskStatus(val raw: String) {
 }
 
 /** الأولوية — تُخزن كقيمة لا كنص واجهة مترجم. */
-enum class TaskPriority(val raw: String) : Comparable<TaskPriority> {
+enum class TaskPriority(val raw: String) {
     LOW("low"),
     NORMAL("normal"),
     HIGH("high");
 
-    private val rank: Int
+    val sortRank: Int
         get() = when (this) {
             HIGH -> 0
             NORMAL -> 1
             LOW -> 2
         }
-
-    override fun compareTo(other: TaskPriority): Int = rank.compareTo(other.rank)
 
     companion object {
         fun from(raw: String?): TaskPriority =

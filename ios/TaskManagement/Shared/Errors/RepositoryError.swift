@@ -10,8 +10,8 @@ enum RepositoryError: Error, Equatable {
   var readableDescription: String {
     switch self {
     case .validationFailed(let reason): return reason
-    case .notFound: return "العنصر ده مش موجود."
-    case .storeFailure(let reason): return "حصلت مشكلة في الحفظ: \(reason)"
+    case .notFound: return "هذا العنصر غير موجود."
+    case .storeFailure(let reason): return "حدثت مشكلة في الحفظ: \(reason)"
     }
   }
 }

@@ -16,7 +16,7 @@ struct RootView: View {
         ContentUnavailableView(
           "مشكلة في تشغيل التطبيق",
           systemImage: "exclamationmark.triangle",
-          description: Text("المخزن مش متوصّل — اقفل التطبيق وافتحه تاني.")
+          description: Text("تعذّر الاتصال بالتخزين المحلي. أغلق التطبيق وأعد فتحه.")
         )
       }
     } else {
@@ -30,6 +30,12 @@ struct RootView: View {
 @MainActor
 struct RootTabs: View {
   let repository: LocalDataRepository
+
+  @Environment(AppSession.self) private var session
+  @State private var notificationTask: TaskItem?
+  @State private var notificationProject: ProjectItem?
+  @State private var notificationEdit: TaskItem?
+  @State private var notificationError: String?
 
   @State private var selection: AppTab = .home
   @State private var editorSeed: TaskEditorSeed?
@@ -80,6 +86,31 @@ struct RootTabs: View {
       .sheet(item: $editorSeed) { seed in
         TaskEditorSheet(seed: seed, repository: repository)
       }
+      .sheet(item: $notificationTask, onDismiss: {
+        if let item = notificationEdit {
+          notificationEdit = nil
+          editorSeed = .edit(item)
+        }
+      }) { item in
+        TaskDetailSheet(item: item, project: notificationProject, repository: repository,
+          onEdit: { value in notificationEdit = value; notificationTask = nil },
+          onDeleted: { notificationTask = nil })
+      }
+      .task(id: session.notificationTaskId) {
+        guard let id = session.notificationTaskId else { return }
+        session.notificationTaskId = nil
+        do {
+          let context = try repository.notificationContext(id: id)
+          notificationProject = context.project
+          notificationTask = context.task
+        } catch {
+          notificationError = "تعذّر فتح المهمة. ربما حُذفت؛ مهامك الأخرى محفوظة."
+        }
+      }
+      .alert("التذكير", isPresented: Binding(
+        get: { notificationError != nil }, set: { if !$0 { notificationError = nil } }
+      )) { Button("حسنًا") { notificationError = nil } }
+        message: { Text(notificationError ?? "") }
       .onAppear {
         // مداخل تشخيصية للأدوات فقط: فتح تاب مباشر عند الإقلاع.
         if ProcessInfo.processInfo.arguments.contains("-tmStartTasks") {

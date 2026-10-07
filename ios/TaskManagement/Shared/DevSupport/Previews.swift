@@ -15,7 +15,7 @@ import SwiftUI
 
     static let sampleActiveTask = TaskItem(
       id: UUID(),
-      title: "أسلّم تقرير المشروع",
+      title: "تسليم تقرير المشروع",
       details: "مراجعة نهائية قبل التسليم",
       status: .active,
       priority: .high,
@@ -46,7 +46,7 @@ import SwiftUI
       let repository = inMemoryRepository()
       if let first = try? repository.create(
         NewTask(
-          title: "أسلّم تقرير المشروع", details: nil, priority: .high, dueDay: CalendarDay.today(),
+          title: "تسليم تقرير المشروع", details: nil, priority: .high, dueDay: CalendarDay.today(),
           projectId: nil)
       ) {
         _ = try? repository.create(
@@ -64,7 +64,7 @@ import SwiftUI
       let repository = inMemoryRepository()
       _ = try? repository.create(
         NewTask(
-          title: "أسلّم تقرير المشروع", details: "مراجعة نهائية قبل التسليم", priority: .high,
+          title: "تسليم تقرير المشروع", details: "مراجعة نهائية قبل التسليم", priority: .high,
           dueDay: CalendarDay.today(), projectId: nil)
       )
       _ = try? repository.create(
@@ -84,11 +84,11 @@ import SwiftUI
     static func projectsWithSamples() -> ProjectsScreen {
       let repository = inMemoryRepository()
       if let work = try? repository.createProject(
-        NewProject(name: "مشروع الشغل", emoji: "💼", colorKey: ProjectPalette.blue.rawValue)
+        NewProject(name: "مشروع العمل", emoji: "💼", colorKey: ProjectPalette.blue.rawValue)
       ) {
         _ = try? repository.create(
           NewTask(
-            title: "أسلّم تقرير المشروع", details: nil, priority: .high, dueDay: CalendarDay.today(),
+            title: "تسليم تقرير المشروع", details: nil, priority: .high, dueDay: CalendarDay.today(),
             projectId: work.id)
         )
         if let done = try? repository.create(
@@ -100,7 +100,7 @@ import SwiftUI
         }
       }
       _ = try? repository.createProject(
-        NewProject(name: "المذاكرة", emoji: "📚", colorKey: ProjectPalette.orange.rawValue)
+        NewProject(name: "الدراسة", emoji: "📚", colorKey: ProjectPalette.orange.rawValue)
       )
       return ProjectsScreen(repository: repository)
     }
@@ -111,20 +111,20 @@ import SwiftUI
       .environment(AppSession())
   }
 
-  #Preview("الرئيسية — فاضية") {
+  #Preview("الرئيسية — فارغة") {
     HomeView(
       repository: PreviewSupport.inMemoryRepository(), onOpenTasks: {}, onOpenProject: { _ in })
   }
 
-  #Preview("الرئيسية — فيها مهام") {
+  #Preview("الرئيسية — تحتوي على مهام") {
     PreviewSupport.homeWithTasks()
   }
 
-  #Preview("مهامي — فيها مهام") {
+  #Preview("مهامي — تحتوي على مهام") {
     PreviewSupport.tasksWithSamples()
   }
 
-  #Preview("المشاريع — فيها مشاريع") {
+  #Preview("المشاريع — تحتوي على مشاريع") {
     NavigationStack {
       PreviewSupport.projectsWithSamples()
     }

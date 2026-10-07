@@ -14,7 +14,7 @@ enum AppDependencies {
 
   static func bootstrap() -> Result<Bootstrap, RepositoryError> {
     do {
-      let schema = Schema([PersistedTask.self, PersistedProject.self])
+      let schema = Schema([PersistedTask.self, PersistedProject.self, PersistedTombstone.self])
       let container = try ModelContainer(
         for: schema, configurations: [ModelConfiguration(schema: schema)])
       let repository = LocalDataRepository(container: container)

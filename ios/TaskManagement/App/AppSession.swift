@@ -5,6 +5,8 @@ import SwiftUI
 final class AppSession {
   private static let hasCompletedOnboardingKey = "hasCompletedOnboarding"
 
+  var notificationTaskId: UUID?
+
   var hasCompletedOnboarding: Bool {
     didSet {
       UserDefaults.standard.set(hasCompletedOnboarding, forKey: Self.hasCompletedOnboardingKey)

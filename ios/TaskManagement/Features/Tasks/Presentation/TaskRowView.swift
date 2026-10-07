@@ -92,7 +92,7 @@ struct TaskRowView: View {
   static func statusTitle(for status: TaskStatus) -> String {
     switch status {
     case .active: return "مفتوحة"
-    case .inProgress: return "شغالة عليها"
+    case .inProgress: return "قيد التنفيذ"
     case .completed: return "مكتملة"
     }
   }
@@ -115,7 +115,7 @@ struct TaskRowView: View {
 
   static func dayLabel(for day: CalendarDay) -> String {
     let today = CalendarDay.today()
-    if day == today { return "النهارده" }
+    if day == today { return "اليوم" }
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: "ar_EG")
     formatter.dateFormat = "d MMM"
