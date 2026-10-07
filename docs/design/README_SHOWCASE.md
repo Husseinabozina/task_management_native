@@ -34,3 +34,5 @@ README جديد، docs/showcase للأصول ونسبها، DECISIONS وCURRENT_
 الثقة مرتفعة في المحتوى وسلامة الأصول والمراجع؛ عرض GitHub النهائي ينتظر رفع الملفات. لا تنطبق مقارنة فريم Figma بالتطبيق على هذا التغيير التوثيقي؛ لا واجهة تطبيق تغيّرت.
 
 D31/D32: README status and features updated for native reminders and optional personal sync. SQL checks and simulator startup are distinguished from real-account/device acceptance; the eight original owner-supplied Android captures remain unchanged. No website was created.
+
+GitHub delivery verified after push 51e4e34: rendered README HTML HTTP 200, all eight screenshot names, SwiftUI/Jetpack Compose and details section present. README + icon + eight screenshot raw URLs (10 files) returned HTTP 200. This is rendered-markup/link verification; no claim of a browser pixel comparison.

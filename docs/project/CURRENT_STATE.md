@@ -1,8 +1,8 @@
 # CURRENT_STATE — 2026-10-08
 
-Current phase: D31 native reminders + D32 personal sync implemented; D30 README/showcase complete. TaskFlow motion awaits required platform clarification.
+Current phase: D31 native reminders + D32 personal sync implemented and published to GitHub; D30 README/showcase complete. TaskFlow motion awaits required platform clarification.
 Project path: /Volumes/Hussein/DevStorage/Projects/task_management_native
-Branch / baseline HEAD: main — ae98903. User explicitly authorized committing/pushing all relevant work. The pre-existing deletion of iOS Package.resolved remains preserved; no reset, data clear or force push.
+Branch: main. Published code checkpoint: 51e4e34 (baseline ae98903); later documentation-only commits are listed in git log. User explicitly authorized committing/pushing all relevant work. The pre-existing deletion of iOS Package.resolved remains preserved; no reset, data clear or force push.
 Approved scope: User requested final Rive splash, completion of reminders and related personal sync, verification and GitHub upload. Current repo is Native SwiftUI/Compose, not Flutter. Required question pending: integrate TaskFlow using native SDKs here, or use a different Flutter project? No logo flow/dependency/asset was changed while that choice is unresolved.
 Locked decisions: D1–D32. D31/D32 supersede the earlier deferral of Android A3/A4. Native architecture, optional account, local data, existing onboarding/navigation and D26 presentation design preserved.
 
@@ -18,6 +18,7 @@ Verification actually performed:
 - Android final assembleDebug + lintDebug successful, 0 errors / 16 warnings (dependency-update notices, launcher silhouette, UseKtx suggestions); no arbitrary upgrades. APK signature v2 verified. No unit/test files added.
 - iOS simulator build successful on Xcode 26.2 with cached dependencies, no SDK download. Existing iPhone 17 Pro/iOS 26.2 booted, installed and launched; screenshot visually inspected: actual existing Home, no bootstrap/store failure. A pre-existing trailing-closure deprecation warning in RootTabs; no compile errors.
 - Supabase migration 20261007230659_personal_sync_rpc deployed using migration API. Rollback-only fixtures verified stale write protection, date-only preservation, known/new tombstones, no stale resurrection, project-task detachment, atomic failure and owner read/write/RPC isolation. No fixture account/email/data persisted. Post-deployment security advisor: no findings.
+- GitHub push 51e4e34 succeeded and remote main matched the local code checkpoint. GitHub rendered README HTML returned 200 and included all 8 screenshot names, both native stacks and the details section. README/icon/8 screenshots (10 remote files) each returned HTTP 200.
 - README local links/images verified (31 targets, 8 JPEG captures). Existing external links/badges checked in D30. git diff --check and credential-pattern scan passed before commit.
 - Earlier D28/D29 physical CPH2641/Android 15 install/start/demo import succeeded; that device is now disconnected. Current Android runtime checks use the already-running emulator-5554/API 30. A runtime BadTokenException in localized native time picker was found and fixed with an Activity-backed ContextThemeWrapper; final picker opens successfully.
 
