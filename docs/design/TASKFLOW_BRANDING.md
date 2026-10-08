@@ -35,7 +35,11 @@ Render the supplied SVG directly with the installed SVG renderer, preserving its
 | README/captures | 32 local targets resolve; header points to the new SVG with width only; both Native stacks/product name retained. All eight original JPEGs byte-identical. |
 | Public configuration | Current files plus reachable history rescanned without credential-pattern or sensitive-file findings; local configs remain ignored. |
 
-No native build, installation or startup animation run for this static-asset checkpoint. Static branding checks do not verify Rive playback, first-frame hiding or startup navigation; those retain their existing separate acceptance items. GitHub delivery/render verification follows the normal push.
+No native build, installation or startup animation run for this static-asset checkpoint. Static branding checks do not verify Rive playback, first-frame hiding or startup navigation; those retain their existing separate acceptance items.
+
+## GitHub delivery verified
+
+Normal push [`37cf16c`](https://github.com/Husseinabozina/task_management_native/commit/37cf16c3db283e64199388198a1dc8a451b0ac15) succeeded; local HEAD, remote main and GitHub commit API matched. README, SVG, .riv and all 3 icon PNGs returned HTTP 200 with bytes matching local files. GitHub-rendered markup references the new SVG and retains all eight screenshot links. The actual public README was opened in the browser and visually inspected: the blue/cyan/purple TaskFlow mark appears centered above Mahami, with the Native iOS/Android labels present. A screenshot was captured outside the repository for delivery. Later documentation-only commits record this evidence.
 
 ## Files changed and why
 
