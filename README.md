@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/showcase/app-icon.png" width="88" height="88" alt="Mahami app icon — a white checkmark on purple" />
+  <img src="assets/brand/taskflow-logo.svg" width="128" alt="TaskFlow logo — blue, cyan and purple ribbons forming a checkmark" />
   <h1>مهامي · Mahami</h1>
   <p><strong>Organize your day. Move your projects forward.</strong></p>
   <p dir="rtl">نظّم يومك وأنجز مهامك — مهامك ومشاريعك في مكان واحد.</p>

@@ -1,4 +1,4 @@
-# TaskFlow motion — target clarification required
+# TaskFlow motion — runtime target clarification required
 
 The user supplied production Flutter instructions on 2026-10-08. Before editing, the existing startup, routing, theme and splash were inspected and reported. This repository has no `main.dart` or `pubspec.yaml`.
 
@@ -9,12 +9,16 @@ The user supplied production Flutter instructions on 2026-10-08. Before editing,
 - Native launch screen is static; no Rive/animated splash architecture currently exists. No second flow was created.
 - A separate Flutter prototype named `task_management_ui_test` was inspected read-only and was not selected or modified. Its private checkout path is not published here.
 
-## Production asset located
+## Production asset published
 
-`taskflow_v9_3_1.riv`, in the owner's local production asset bundle (outside this repository). The private Downloads path is not published here.
+The unchanged final master is now in this repository at [`assets/animations/taskflow_v9_3_1.riv`](../../assets/animations/taskflow_v9_3_1.riv). Its private source bundle path is not published here.
 
 7236 bytes; SHA256 `17713eba411aba7887449bd70f34d236e122f9a25e1644066c7fd6f2d02591a2`.
 Local copies in the production project and format benchmark match. The asset was not altered, converted, reconstructed or replaced.
+
+## Static branding — D34 approved independently
+
+The owner confirmed that TaskFlow is the new logo and requested updating it, including GitHub. The supplied [SVG master](../../assets/brand/taskflow-logo.svg) now appears in the README; static exports replace the existing iOS/Android launcher icons and showcase icon. This identity update does not require choosing an animation SDK and does not claim startup motion is integrated. Export checks and scope are in [TASKFLOW_BRANDING](TASKFLOW_BRANDING.md).
 
 ## Required answer, already asked
 
